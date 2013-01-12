@@ -56,20 +56,26 @@ http.createServer(function (req, res) {
             break;
         default:
             if (path.indexOf("download") !== -1) {
-                var token = path.substr(path.lastIndexOf("/") + 1);
-                /*util.inspect(tokens);
-                res.end(token);*/
-                var img = fs.readFileSync(tokens[token].filepath);
-                res.writeHead(200, {
-                    //'Content-Type': 'application/octet-stream',
-                    'Content-Type': tokens[token].filename,
-                    //'Content-Disposition': 'attachment; filename="'+ tokens[token].filename +'"'
-                    'Content-Disposition': 'inline; filename="'+ tokens[token].filename +'"'
-                });
-                res.end(img, 'binary');
+                try {
+                    var token = path.substr(path.lastIndexOf("/") + 1);
+                    /*util.inspect(tokens);
+                    res.end(token);*/
+                    var img = fs.readFileSync(tokens[token].filepath);
+                    res.writeHead(200, {
+                        //'Content-Type': 'application/octet-stream',
+                        'Content-Type': tokens[token].filename,
+                        //'Content-Disposition': 'attachment; filename="'+ tokens[token].filename +'"'
+                        'Content-Disposition': 'inline; filename="'+ tokens[token].filename +'"'
+                    });
+                    res.end(img, 'binary');
 
-                //Set timeout for filedeletion
-                setTimeout(function(){ fs.unlink(tokens[token].filename); }, 30*1000);
+                    console.log("New file: " + token);
+                    //Set timeout for filedeletion
+                    setTimeout(function(){ DeleteFile(token); }, 30*1000);
+                } catch (exception) {
+                    res.writeHead(200, {'Content-Type': 'text/html'});
+                    res.end('Woops, looks like the file cannot be served. Maybe the upload isn\'t done yet or maybe the file expired?');
+                }
             } else {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('404: ' + url.parse(req.url).pathname);
@@ -78,6 +84,12 @@ http.createServer(function (req, res) {
     }
 }).listen(process.env.VMC_APP_PORT || 1337, null);
 
+function DeleteFile(token) {
+    fs.unlink(tokens[token].filename);
+    tokens[token] = {};
+
+    console.log("Removed file: " + token);
+}
 
 function GUID () {
     var S4 = function () {
