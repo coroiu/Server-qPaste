@@ -1,0 +1,8 @@
+{
+    "name":"qPaste-Server",
+    "version":"0.0.1",
+    "dependencies":{
+        "formidable":"",
+        "node-uuid":""
+    }
+}

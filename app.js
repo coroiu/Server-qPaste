@@ -3,9 +3,10 @@ var url = require("url");
 var formidable = require('formidable');
 var util = require('util');
 var fs = require('fs');
+var uuid = require('node-uuid');
 
 var tokens = {};
-var host = "http://localhost:1337";
+var host = process.env.host || "http://localhost:1337";
 
 http.createServer(function (req, res) {
 	// Simple path-based request dispatcher
@@ -22,9 +23,9 @@ http.createServer(function (req, res) {
 			);
             break;
         case '/upload-token':
-        	guid = GUID();
+        	guid = uuid.v1();
 
-        	res.writeHead(200, { 'Content-Type': 'application/json' });
+        	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
     		res.end(JSON.stringify({
     			token: guid,
     			link: host + "/download/" + guid
@@ -34,6 +35,8 @@ http.createServer(function (req, res) {
                 filename: '',
                 mimetype: ''
             };
+            //Set timeout for filedeletion
+            setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
         break;
         case '/upload':
             var form = new formidable.IncomingForm();
@@ -70,8 +73,6 @@ http.createServer(function (req, res) {
                     res.end(img, 'binary');
 
                     console.log("New file: " + token);
-                    //Set timeout for filedeletion
-                    setTimeout(function(){ DeleteFile(token); }, 30*1000);
                 } catch (exception) {
                     res.writeHead(200, {'Content-Type': 'text/html'});
                     res.end('Woops, looks like the file cannot be served. Maybe the upload isn\'t done yet or maybe the file expired?');
@@ -85,24 +86,12 @@ http.createServer(function (req, res) {
 }).listen(process.env.VMC_APP_PORT || 1337, null);
 
 function DeleteFile(token) {
-    fs.unlink(tokens[token].filename);
+    try {
+        fs.unlink(tokens[token].filename);
+    } catch (ex) {
+
+    }
     tokens[token] = {};
-
     console.log("Removed file: " + token);
-}
 
-function GUID () {
-    var S4 = function () {
-        return Math.floor(
-                Math.random() * 0x10000 /* 65536 */
-            ).toString(16);
-    };
-
-    return (
-            S4() + S4() + "-" +
-            S4() + "-" +
-            S4() + "-" +
-            S4() + "-" +
-            S4() + S4() + S4()
-        );
 }
