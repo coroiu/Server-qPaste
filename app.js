@@ -258,6 +258,7 @@ function filetype(mimetype) {
 		case 'text/x-script.perl-module':
 		case 'text/x-script.phyton':
 		case 'text/x-java-source':
+		case 'text/x-csharp':
 		case 'text/plain':
 			return 'text'
 			break;
