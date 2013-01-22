@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>qPaste - {{title}}</title>
+	<style type="text/css">html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+	.smooth_zoom_preloader {
+		background-image: url(/img/zoom-preloader.gif);
+	}	
+	.smooth_zoom_icons {
+		background-image: url(/img/zoom-icons.png);
+	}
+	</style>
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+	<link href="/css/stylesheet.css" rel="stylesheet">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<div id="preloadedImages"></div>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand" href="#">qPaste</a>
+				<div class="time">Available for another <span id="countdown">{{time}}</span></div>
+				<div class="nav-collapse collapse sidemenu">
+					<ul class="nav" id="saveas" style="display: none;">
+						<li><a href="{{link}}">Save As</a></li>
+					</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</div>
+	</div>
+	<div class="top-push"></div>
+	<div class="full-size" id="content" style="display: none;">
+		<div class="container" id="content">
+			<div class="row">
+				<div class="span8 offset2 wait">
+					<h1>Please wait...</h1>
+					<p>
+						We are loading your file...
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container" id="wait-content" style="display: none;">
+		<div class="row">
+			<div class="span8 offset2 wait">
+				<div class="icon"></div>
+				<h1>File not uploaded yet</h1>
+				<p>
+					We are sorry but this file is still uploadig.<br>
+					Hang in there and we'll update this page as soon as the file is ready!
+				</p>
+				<p>
+					<label class="checkbox" style="display:none;">
+					 	<input id="alert-checkbox" type="checkbox" checked="yes">
+						Alert me when the file is ready
+					</label>
+				</p>
+			</div>
+		</div>
+	</div>
+	<script src="/js/jquery-1.7.1.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+	<script src="/js/smoothzoom.min.js"></script>
+	<script src="/js/jstorage.js"></script>
+	<script type="text/javascript">
+	var timestamp = {{timestamp}};
+	var countdown = window.setInterval(function () {
+		timestamp -= 1000;
+		timetext = timeleft(timestamp);
+		if (timetext == '0m 0s') {
+			window.clearInterval(countdown);
+			$('.time').text('No longer available');
+		} else {
+			$('#countdown').text(timetext);
+		}
+	}, 1000);
+
+	var available = {{available}};
+	var uid = '{{uid}}';
+	var sound = new Audio('');
+
+	jQuery(function($){
+		if (available) {
+			$('#wait-content').hide();
+			$('#content').show();
+			loadContent(false);
+		} else {
+			$('#wait-content').show();
+			$('#content').hide();
+			loadContent(true);
+		}
+
+		if (window.HTMLAudioElement) {
+			$('.checkbox').show();
+			$('#alert-checkbox').prop("checked", $.jStorage.get('alert', 'true'));
+			$('#alert-checkbox').click(function() {
+				$.jStorage.set('alert', $('#alert-checkbox').prop("checked"));
+			});
+
+			if(sound.canPlayType('audio/ogg')) {
+				sound = new Audio('/sounds/alert.ogg');
+			} else if (snd.canPlayType('audio/mp3')) {
+				sound = new Audio('/sounds/alert.mp3');
+			}
+		} else {
+			$.jStorage.set('alert', 'false');
+		}
+	});
+
+	function loadContent(alert) {
+		$.get('/content/' + uid, function(data) {
+			$('#content').html(data);
+			$('#wait-content').hide();
+			$('#content').show();
+
+			if (alert) {
+				alertSound();
+			}
+		});
+	}
+
+	function alertSound() {
+		if ($.jStorage.get('alert')) {
+			sound.play();
+		}
+	}
+
+	function timeleft(diff) {
+		days  = Math.floor( diff / (1000*60*60*24) );
+		hours = Math.floor( diff / (1000*60*60) );
+		mins  = Math.floor( diff / (1000*60) );
+		secs  = Math.floor( diff / 1000 );
+
+		dd = days;
+		hh = hours - days  * 24;
+		mm = mins  - hours * 60;
+		ss = secs  - mins  * 60;
+
+		return mm + "m " + ss + "s";
+	}
+	</script>
+</body>
+</html>

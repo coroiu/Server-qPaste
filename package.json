@@ -3,6 +3,8 @@
     "version":"0.0.1",
     "dependencies":{
         "formidable":"",
-        "node-uuid":""
+        "node-uuid":"",
+        "express": "3.x",
+        "consolidate": ""
     }
 }

@@ -1,0 +1,12 @@
+<div class="text-viewer">
+	<div class="container">
+		<pre id="text" style="background: #f0f0f0;"><code>{{text}}</code></pre>
+	</div>
+</div>
+<script type="text/javascript">
+	$('head').append('<link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/default.min.css"/>');
+	$.getScript('http://yandex.st/highlightjs/7.3/highlight.min.js', function() {
+		$('pre code').each(function(i, e) {hljs.highlightBlock(e)});
+	});
+	$('#saveas').show();
+</script>
