@@ -8,16 +8,14 @@ var storage = require('./amazons3-connect');
 var app = express();
 
 var tokens = {};
-var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
 var host = process.env.host || "http://localhost:1337";
-var limit = process.env.limit || '20';
+var limit = process.env.limit || '20mb';
 
 app.use(express.static(__dirname + '/public'));
+app.use(express.limit(limit));
 app.engine('html', cons.hogan);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
-
-storage.setLimit(parseInt(limit));
 
 // VIEWS
 app.get('/', function(req, res){
@@ -40,7 +38,7 @@ app.get('/get/:uid', function(req, res) {
 			uid: uid,
 			time: timeleft(timediff(tokens[uid].time)),
 			timestamp: timediff(tokens[uid].time),
-			link: s3path + uid,
+			link: '/dl/' + uid,
 			available: isAvailable(uid)
 		});
 	}
@@ -67,12 +65,12 @@ function ajaxContent(req, res, uid) {
 	switch (filetype(tokens[uid].mimetype)) {
 		case 'image':
 			res.render('content-image', {
-				link: tokens[uid].filepath
+				link: '/dl-inline/' + uid
 			});
 			break;
 		case 'embedd':
 			res.render('content-embedd', {
-				link: tokens[uid].filepath
+				link: '/dl-inline/' + uid
 			});
 			break;
 		case 'text':
@@ -82,68 +80,90 @@ function ajaxContent(req, res, uid) {
 			break;
 		default: 
 			res.render('content-dl', {
-				link: tokens[uid].filepath,
-				content: tokens[uid].filepath
+				link: '/dl/' + uid,
+				content: '/dl/' + uid
 			});
 	}
 }
 
 // API 
-app.post('/upload-token', function(req, res, next) {
-	var form = new formidable.IncomingForm();
+app.get('/upload-token', function(req, res, next) {
+	guid = uuid.v1();
 
-	form.parse(req, function(err, fields, files) {
-		if (!fields.filename || !fields.mime) {
-			var error = new Error('Fields missing.');
-			error.name = "Fields missing";
-			error.status = 400;
-			return next(error);
-		}
-
-		guid = uuid.v1();
-
-		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
-		res.end(JSON.stringify({
-			token: guid,
-			link: host + "/get/" + guid,
-			storage: storage.getS3Policy("uploads/" + guid, fields.filename, fields.mime)
-		}));
-		tokens[guid] = {
-	        filepath: '',
-	        filename: fields.filename,
-	        mimetype: fields.mime,
-	        uploaded: false,
-	        callback: [],
-	        time: new Date().getTime()
-	    };
-	    //Set timeout for file deletion
-	    //setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
-	});
+	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+	res.end(JSON.stringify({
+		token: guid,
+		link: host + "/get/" + guid
+	}));
+	tokens[guid] = {
+        filepath: '',
+        filename: '',
+        mimetype: '',
+        uploaded: false,
+        callback: [],
+        time: new Date().getTime()
+    };
+    //Set timeout for file deletion
+    setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
 });
 
-app.post('/upload-done', function(req, res, next) {
+app.post('/upload', function (req, res, next) {
 	var form = new formidable.IncomingForm();
 
 	form.parse(req, function(err, fields, files) {
 		if (!fields.token) {
-			var error = new Error('Token missing.');
+			var error = new Error('Token missing');
 			error.name = "Token missing";
 			error.status = 400;
 			return next(error);
 		}
 
-		tokens[fields.token].filepath = s3path + fields.token; 
-		
-		for (i = 0; i < tokens[fields.token].callback.length; i++) {
-			tokens[fields.token].callback[i]();
-		}
+		res.writeHead(200, {'Content-type': 'text/plain'});
+		res.write('received upload:\n\n');
+		res.end(util.inspect({fields: fields, files: files}));
 
-	    //Set timeout for file deletion
-	    setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
+        tokens[fields.token].filepath = files.upload.path;
+        tokens[fields.token].filename = files.upload.name;
+        tokens[fields.token].mimetype = files.upload.type;
+        tokens[fields.token].uploaded = true;
+
+        for (i = 0; i < tokens[fields.token].callback.length; i++) {
+        	tokens[fields.token].callback[i]();
+        }
 	});
+});
 
-	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
-	res.end("");
+//Inline file provider
+app.get('/dl-inline/:uid', function (req, res, next) {
+	var uid = req.params.uid;
+	try {
+	    var img = fs.readFileSync(tokens[uid].filepath);
+	    res.writeHead(200, {
+	        'Content-Type': tokens[uid].filename,
+	        'Content-Disposition': 'inline; filename="'+ tokens[uid].filename +'"'
+	    });
+	    res.end(img, 'binary');
+	} catch (exception) {
+	    res.writeHead(404, {'Content-Type': 'text/plain'});
+	    res.end('Woops, looks like the file cannot be served. Maybe the upload isn\'t done yet or maybe the file expired?');
+	}
+});
+
+//Attachment file provider
+app.get('/dl/:uid', function (req, res, next) {
+	var uid = req.params.uid;
+	try {
+	    var img = fs.readFileSync(tokens[uid].filepath);
+	    res.writeHead(200, {
+	        'Content-Type': tokens[uid].filename,
+	        'Content-Disposition': 'attachment; filename="'+ tokens[uid].filename +'"'
+	    });
+	    res.end(img, 'binary');
+	} catch (ex) {
+	    res.writeHead(200, {'Content-Type': 'text/plain'});
+	    res.write('Woops, looks like the file cannot be served. Maybe the upload isn\'t done yet or maybe the file expired?\n\n');
+	    res.end('Exception: ' + util.inspect(ex));
+	}
 });
 
 // ERROR HANDLING
