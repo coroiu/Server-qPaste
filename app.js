@@ -12,24 +12,26 @@ var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
 var host = process.env.host || "http://localhost:1337";
 var limit = process.env.limit || '20';
 
+/*jslint es5: true */
 app.use(express.static(__dirname + '/public'));
 app.engine('html', cons.hogan);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 
-storage.setLimit(parseInt(limit));
+storage.setLimit(parseInt(limit, 10));
 
 // VIEWS
 app.get('/', function(req, res){
 	res.render('index', {
-		title: 'Home'
+		title: 'Home',
+		limit: limit
 	});
 });
 
 //Main preview page
 app.get('/get/:uid', function(req, res) {
 	var uid = req.params.uid;
-	if (tokens[uid] == undefined || tokens [uid].time == undefined) {
+	if (tokens[uid] === undefined || tokens [uid].time === undefined) {
 		res.statusCode = 404;
 		res.render('get-error', {
 			title: 'Not found'
@@ -49,12 +51,12 @@ app.get('/get/:uid', function(req, res) {
 //Ajax content provider
 app.get('/content/:uid', function(req, res) {
 	var uid = req.params.uid;
-	if (tokens[uid] == undefined || tokens [uid].time == undefined) {
+	if (tokens[uid] === undefined || tokens [uid].time === undefined) {
 		res.statusCode = 404;
 		res.render('get-error', {
 			title: 'Not found'
 		});
-	} else if (tokens[uid].filepath == '') {
+	} else if (tokens[uid].filepath === '') {
 		tokens[uid].callback.push(function () {
 			ajaxContent(req, res, uid);
 		});
@@ -77,10 +79,16 @@ function ajaxContent(req, res, uid) {
 			break;
 		case 'text':
 			res.render('content-text', {
-				text: fs.readFileSync(tokens[uid].filepath)
+				link: tokens[uid].filepath
 			});
 			break;
-		default: 
+		case 'audio':
+			res.render('content-audio', {
+				link: tokens[uid].filepath,
+				mime: tokens[uid].mimetype
+			});
+			break;
+		default:
 			res.render('content-dl', {
 				link: tokens[uid].filepath,
 				content: tokens[uid].filepath
@@ -88,7 +96,7 @@ function ajaxContent(req, res, uid) {
 	}
 }
 
-// API 
+// API
 app.post('/upload-token', function(req, res, next) {
 	var form = new formidable.IncomingForm();
 
@@ -109,15 +117,15 @@ app.post('/upload-token', function(req, res, next) {
 			storage: storage.getS3Policy("uploads/" + guid, fields.filename, fields.mime)
 		}));
 		tokens[guid] = {
-	        filepath: '',
-	        filename: fields.filename,
-	        mimetype: fields.mime,
-	        uploaded: false,
-	        callback: [],
-	        time: new Date().getTime()
-	    };
-	    //Set timeout for file deletion
-	    //setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
+			filepath: '',
+			filename: fields.filename,
+			mimetype: fields.mime,
+			uploaded: false,
+			callback: [],
+			time: new Date().getTime()
+		};
+		//Set timeout for file deletion
+		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
 	});
 });
 
@@ -132,14 +140,14 @@ app.post('/upload-done', function(req, res, next) {
 			return next(error);
 		}
 
-		tokens[fields.token].filepath = s3path + fields.token; 
+		tokens[fields.token].filepath = s3path + fields.token;
 		
 		for (i = 0; i < tokens[fields.token].callback.length; i++) {
 			tokens[fields.token].callback[i]();
 		}
 
-	    //Set timeout for file deletion
-	    setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
+		//Set timeout for file deletion
+		setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
 	});
 
 	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
@@ -165,21 +173,24 @@ app.use(function(err, req, res, next) {
 });
 
 function DeleteFile(token) {
-    try {
+	//Amazon S3 delete not implemented
+	//Files delete themselves after 1 day
+
+    /*try {
         fs.unlink(tokens[token].filename);
     } catch (ex) {
 
-    }
+    }*/
+
     tokens[token] = {};
-    console.log("Removed file: " + token);
 }
 
 function isAvailable(token) {
 	try {
-		if (tokens[token].filepath != '') {
+		if (tokens[token].filepath !== '') {
 			return true;
 		}
-		else 
+		else
 			return false;
 	} catch (ex) {
 		return false;
@@ -214,11 +225,9 @@ function filetype(mimetype) {
 		case 'image/jpeg':
 		case 'image/png':
 			return 'image';
-			break;
 		case 'application/x-shockwave-flash':
 		case 'application/pdf':
 			return 'embedd';
-			break;
 		case 'application/x-javascript':
 		case 'application/javascript':
 		case 'application/ecmascript':
@@ -241,8 +250,12 @@ function filetype(mimetype) {
 		case 'text/x-java-source':
 		case 'text/x-csharp':
 		case 'text/plain':
-			return 'text'
-			break;
+			return 'text';
+		case 'audio/mp3':
+		case 'audio/mpeg':
+		case 'audio/ogg':
+		case 'audio/wav':
+			return 'audio';
 		default:
 			return 'download';
 	}
