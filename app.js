@@ -24,7 +24,8 @@ storage.setLimit(parseInt(limit, 10));
 app.get('/', function(req, res){
 	res.render('home', {
 		title: 'Home',
-		description: '',
+		metatitle: 'qPaste - Instant Cloud Sharing',
+		description: 'Upload and share any file using the fast and reliable online cloud.\nDownload the desktop client to upload any clipboard data.\nEverything completely free, instantly available.',
 		author: 'Andreas Coroiu',
 		limit: limit
 	});
@@ -76,7 +77,8 @@ function ajaxContent(req, res, uid) {
 			break;
 		case 'embedd':
 			res.render('content-embedd', {
-				link: tokens[uid].filepath
+				link: tokens[uid].filepath,
+				mime: tokens[uid].mimetype
 			});
 			break;
 		case 'text':
