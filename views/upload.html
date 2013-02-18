@@ -1,0 +1,15 @@
+<html>
+<head>
+	<title>qPaste - {{title}}</title>
+</head>
+<body>
+	<form action="/upload" enctype="multipart/form-data" method="post">
+		<input type="text" name="token"><br>
+		<input type="file" name="upload" multiple="multiple"><br>
+		<input type="submit" value="Upload">
+	</form>
+	<p>
+		Size limit: {{limit}}
+	</p>
+</body>
+</html>

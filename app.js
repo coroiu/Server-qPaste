@@ -22,8 +22,10 @@ storage.setLimit(parseInt(limit, 10));
 
 // VIEWS
 app.get('/', function(req, res){
-	res.render('index', {
+	res.render('home', {
 		title: 'Home',
+		description: '',
+		author: 'Andreas Coroiu',
 		limit: limit
 	});
 });

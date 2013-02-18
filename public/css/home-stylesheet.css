@@ -1,0 +1,154 @@
+body {
+	padding-top: 20px;
+	padding-bottom: 40px;
+}
+
+/* Default bootstrap
+ * For some reason this is lost and inputs look wierd
+ */
+input[type="text"] {
+	padding: 14px 4px;
+}
+
+.site-overlay {
+	display: none;
+	position: fixed;
+	z-index: 100;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background: rgba(0, 0, 0, 0.1);
+}
+
+.container > hr {
+	margin: 30px 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+	position: relative;
+}
+
+.jumbotron .view {
+	position: relative;
+	top: 0;
+	left: 0;
+}
+
+.jumbotron .overlay {
+	display: none;
+	position: absolute;
+	z-index: 200;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+
+	background: rgba(255, 255, 255, .95);
+	border: dashed #333;
+	border-width: 2px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+}
+
+.jumbotron .center-wrapper {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+}
+
+.jumbotron .center-wrapper:before {
+	content: "";
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.jumbotron .center-wrapper .content {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.jumbotron #default {
+	padding: 60px 0;
+}
+
+.jumbotron #default h1 {
+	font-size: 72px;
+	line-height: 1;
+}
+
+.jumbotron #default .btn {
+	font-size: 21px;
+	padding: 14px 24px;
+}
+
+.jumbotron #default .icon {
+	width: 128px;
+	height: 128px;
+	background: url(/img/upload-128px.png);
+	float: left;
+}
+
+.jumbotron #default .content {
+	margin-left: 128px;
+	padding-left: 20px;
+}
+
+.jumbotron #drop {
+	
+}
+
+.jumbotron #drop .content {
+	font-size: 72px;
+	line-height: 1;
+}
+
+.jumbotron #upload {
+	display: none;	
+}
+
+/* Supporting marketing content */
+.marketing {
+	margin: 60px 0;
+	text-align: center;
+}
+
+.marketing p + h4 {
+	margin-top: 28px;
+}
+
+.marketing p {
+	text-align: left;
+}
+
+.marketing img {
+	display: block;
+	width: 64px;
+	margin: auto;
+}
+
+@media (max-width: 767px) { 
+	.jumbotron #default .content {
+		margin-left: 0;
+		padding-left: 0;
+		text-align: center;
+	}
+
+	.jumbotron #default h1 {
+		font-size: 40px;
+		line-height: 1;
+	}
+
+	.jumbotron #default .icon {
+		float: none;
+		display: block;
+		margin: auto;
+	}
+
+	.jumbotron #drop .content {
+		font-size: 40px;
+		line-height: 1;
+	}
+}

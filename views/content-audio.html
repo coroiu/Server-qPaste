@@ -1,0 +1,48 @@
+<div class="audio-container">
+	<div class="inner">
+		<div class="albumart">
+			<img src="/img/albumart.jpg">
+			<canvas id="fft"></canvas>
+		</div>
+		<audio id="audio" controls="controls" style="display:none;">
+			<source src="{{link}}" type="{{mime}}" />
+		</audio>
+	</div>
+</div>
+<script type="text/javascript">
+	//$('head').append('<link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/default.min.css"/>');
+	$.when(
+		$.getScript('/js/dancer.min.js'),
+		/*$.getScript('/dancerjs/detector.js'),
+		$.getScript('/dancerjs/three.js'),
+	    $.getScript('/dancerjs/src/dancer.js'),
+		$.getScript('/dancerjs/src/support.js'),
+		$.getScript('/dancerjs/src/kick.js'),
+		$.getScript('/dancerjs/src/adapterWebkit.js'),
+		$.getScript('/dancerjs/src/adapterMoz.js'),
+		$.getScript('/dancerjs/src/adapterFlash.js'),*/
+		$.getScript('/dancerjs/lib/fft.js'),
+		$.getScript('/dancerjs/lib/flash_detect.js'),
+		$.getScript('/dancerjs/plugins/dancer.fft.js')
+	).then(function(){
+	    Dancer.setOptions({
+			flashJS  : '/dancerjs/soundmanager2.js',
+			flashSWF : '/dancerjs/soundmanager2.swf'
+		});
+
+		var fft = document.getElementById( 'fft' ),
+	    ctx = fft.getContext( '2d' ),
+	    dancer = new Dancer(), kick;
+
+		dancer.fft( fft, { fillStyle: '#FFF' }).load(audio);
+		$('#audio').bind("play", function(event){
+			event.preventDefault();
+			dancer.play();
+			return false;
+		});
+		window.dancer = dancer;
+
+		$('#audio').show();
+	});
+	$('#saveas').show();
+</script>

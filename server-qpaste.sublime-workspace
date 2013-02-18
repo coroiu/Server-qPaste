@@ -1,0 +1,368 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"corres",
+				"correspondece_firstcontact"
+			],
+			[
+				"var",
+				"var_dump"
+			],
+			[
+				"body",
+				"correspondence-body"
+			],
+			[
+				"subj",
+				"correspondence-subject"
+			],
+			[
+				"corre",
+				"correspondence-sms"
+			],
+			[
+				"value",
+				"value  (variable)"
+			],
+			[
+				"fun",
+				"fun	Function"
+			],
+			[
+				"corr",
+				"correspondence-active"
+			],
+			[
+				"corresp",
+				"correspondece_row  (variable)"
+			],
+			[
+				"globa",
+				"global_loaded"
+			],
+			[
+				"audio",
+				"audio-container"
+			],
+			[
+				"paddin",
+				"padding-top"
+			],
+			[
+				"aud",
+				"audio-container"
+			],
+			[
+				"get",
+				"getScript"
+			],
+			[
+				"fil",
+				"filepath"
+			],
+			[
+				"file",
+				"filetype"
+			],
+			[
+				"s3",
+				"s3path"
+			],
+			[
+				"buck",
+				"bucketName"
+			],
+			[
+				"check",
+				"checkbox"
+			],
+			[
+				"image",
+				"image"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"sty",
+				"style"
+			],
+			[
+				"write",
+				"writeHead"
+			],
+			[
+				"wrt",
+				"writeHead"
+			],
+			[
+				"random",
+				"randomstring"
+			],
+			[
+				"Con",
+				"Content-Type"
+			],
+			[
+				"tok",
+				"token"
+			],
+			[
+				"fn",
+				"font-weight"
+			],
+			[
+				"font",
+				"font-size"
+			],
+			[
+				"print",
+				"printf"
+			],
+			[
+				"quer",
+				"query_result"
+			],
+			[
+				"php",
+				"php"
+			],
+			[
+				"req",
+				"request"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "Packages/C++/C++.sublime-build",
+	"command_palette":
+	{
+		"height": 35.0,
+		"selected_items":
+		[
+			[
+				"new",
+				"File: New View into File"
+			],
+			[
+				"linter",
+				"Tag: Lint Selection or Document"
+			],
+			[
+				"sublime",
+				"Preferences: SublimeClang Settings – Default"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"package",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 536.0
+	},
+	"console":
+	{
+		"height": 146.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Andreas/Downloads/scrape.php",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/Global-dev/css/style.css",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/get.html",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/project",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/Global-dev/admin.php",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/AdvancedNewFile/README.md",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/SideBarEnhancements/messages/11.13.2012.1305.0.txt",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/app.js",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/Global-dev/logincheck.php",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/Global-dev/global.php",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/katedral.studenthelpdesk.se/strings.php",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/Global-dev/home.php",
+		"/C/Users/Andreas/Dropbox/Outside folders/Företag/Jobb material/Studenthelpdesk/Global-dev/scripts/searchcases.php",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/css/mainpage-stylesheet.css",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/id3.min.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/dancerjs/plugins/dancer.fft.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/dancerjs/fft.js",
+		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/single_song_demo/index.html",
+		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/fft/js/player.js",
+		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/fft/index.html",
+		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/audio_element/index.html",
+		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/waveform/js/player.js",
+		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/audio_element/js/player.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/amazons3-connect.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/content-text.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/error.xml",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/s3credentials.js",
+		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/waveform/index.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/index.html",
+		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/.gitignore",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/.gitignore",
+		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/Windows-qPaste/bin/Release/app.publish/publish.htm",
+		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/Windows-qPaste/bin/Release/app.publish/index.htm",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/css/stylesheet.css",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/content-image.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/content-embedd.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/cookie.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/get-error.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/Example/Example 1.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/test.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/jquery.smoothZoom.min.js",
+		"/C/Users/Andreas/Downloads/preview.min.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/smoothzoom.js",
+		"/C/Users/Andreas/AppData/Local/Temp/Rar$DRa0.697/SmoothZoom/icons.png",
+		"/C/Users/Andreas/AppData/Local/Temp/Rar$DIa0.816/jquery.smoothzoom.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/README.md",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/app_bak.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/index.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/package.json",
+		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/README.md",
+		"/C/Users/Andreas/Documents/Hello there Ryan.txt",
+		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/Windows-qPaste/.gitignore",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/C++/C++.sublime-build",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/C++/C++ backup.sublime-build",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/User/C++ External CMD.sublime-build",
+		"/C/Users/Andreas/Documents/Visual Studio 2012/Projects/GoogleC++Learning/GoogleC++Learning/test",
+		"/C/temp/test.cpp",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences (Windows).sublime-settings",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/Default/Default (Windows).sublime-keymap",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/Andreas/AppData/Roaming/Sublime Text 2/Packages/SublimeClang/SublimeClang.sublime-settings",
+		"/C/temp/Hjandreas/src/view/OrderFrame.java",
+		"/C/temp/Windows-qPaste/UploadForm.cs",
+		"/C/temp/Getting Started - Educational Materials — Google Developers.htm",
+		"/C/temp/Windows-qPaste/Form1.cs",
+		"/C/Users/Andreas/Documents/hej.txt",
+		"/C/Users/Andreas/Documents/GitHub/Pushto-Server/app.js",
+		"/C/Users/Andreas/Documents/GitHub/Pushto-Server/auth_bak.html",
+		"/C/Users/Andreas/Downloads/client_secrets.json"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"tab",
+			"correspondece",
+			"fade",
+			"smsavi",
+			"serialize",
+			"limit",
+			";\n",
+			"uuid"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"correspondence"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 34.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 134.0
+	},
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 213.0,
+	"status_bar_visible": true
+}

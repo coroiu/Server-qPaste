@@ -1,7 +1,8 @@
 Server-qPaste
 =============
 
-Share quickly using online cloud service
+Instant Cloud Sharing
+-------------
 
-SmoothZoom Image viewer from
-http://www.albanx.com/?pid=1&subid=22
+Paste and share any file using the fast and reliable online cloud.
+Completely free, instantly available.

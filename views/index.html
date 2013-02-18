@@ -1,12 +1,209 @@
-<html>
-<head>
-	<title>qPaste - {{title}}</title>
-</head>
-<body>
-	<form action="/upload" enctype="multipart/form-data" method="post">
-		<input type="text" name="token"><br>
-		<input type="file" name="upload" multiple="multiple"><br>
-		<input type="submit" value="Upload">
-	</form>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>Carousel Template · Bootstrap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<!-- Le styles -->
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+<link href="/css/mainpage-stylesheet.css" rel="stylesheet">
+
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+
+      <!-- Fav and touch icons -->
+      <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/apple-touch-icon-144-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/img/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/img/apple-touch-icon-72-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" href="/img/apple-touch-icon-57-precomposed.png">
+
+      <body><div id="cboxOverlay" style="display: none;"></div><div id="colorbox" style="padding-bottom: 59px; padding-right: 30px; display: none;" class=""><div id="cboxWrapper" style=""><div id="false" style=""><div id="cboxTopLeft" style="float: left;"></div><div id="cboxTopCenter" style="float: left;"></div><div id="cboxTopRight" style="float: left;"></div></div><div id="false" style="clear: left;"><div id="cboxMiddleLeft" style="float: left;"></div><div id="cboxContent" style="float: left;"><div id="cboxLoadedContent" style="width: 0px; height: 0px; overflow: hidden;" class=""></div><div id="cboxLoadingOverlay" style="" class=""></div><div id="cboxLoadingGraphic" style="" class=""></div><div id="cboxTitle" style="" class=""></div><div id="cboxCurrent" style="" class=""></div><div id="cboxNext" style="" class=""></div><div id="cboxPrevious" style="" class=""></div><div id="cboxSlideshow" style="" class=""></div><div id="cboxClose" style="" class=""></div></div><div id="cboxMiddleRight" style="float: left;"></div></div><div id="false" style="clear: left;"><div id="cboxBottomLeft" style="float: left;"></div><div id="cboxBottomCenter" style="float: left;"></div><div id="cboxBottomRight" style="float: left;"></div></div></div><div id="false" style="position: absolute; width: 9999px; visibility: hidden; display: none;"></div></div>
+
+
+
+    <!-- NAVBAR
+    ================================================== -->
+    <div class="navbar-wrapper">
+    	<!-- Wrap the .navbar in .container to center it within the absolutely positioned parent. -->
+    	<div class="container">
+
+    		<div class="navbar navbar-inverse">
+    			<div class="navbar-inner">
+    				<!-- Responsive Navbar Part 1: Button for triggering responsive navbar (not covered in tutorial). Include responsive CSS to utilize. -->
+    				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+    					<span class="icon-bar"></span>
+    					<span class="icon-bar"></span>
+    					<span class="icon-bar"></span>
+    				</a>
+    				<a class="brand" href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">qPaste</a>
+    				<!-- Responsive Navbar Part 2: Place all navbar contents you want collapsed withing .navbar-collapse.collapse. -->
+    				<div class="nav-collapse collapse">
+    					<ul class="nav">
+    						<li class="active"><a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Home</a></li>
+    						<li><a href="http://twitter.github.com/bootstrap/examples/carousel.html#about">About</a></li>
+    						<li><a href="http://twitter.github.com/bootstrap/examples/carousel.html#contact">Contact</a></li>
+    						<!-- Read about Bootstrap dropdowns at http://twitter.github.com/bootstrap/javascript.html#dropdowns -->
+    						<li class="dropdown">
+    							<a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+    							<ul class="dropdown-menu">
+    								<li><a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Action</a></li>
+    								<li><a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Another action</a></li>
+    								<li><a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Something else here</a></li>
+    								<li class="divider"></li>
+    								<li class="nav-header">Nav header</li>
+    								<li><a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Separated link</a></li>
+    								<li><a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">One more separated link</a></li>
+    							</ul>
+    						</li>
+    					</ul>
+    				</div><!--/.nav-collapse -->
+    			</div><!-- /.navbar-inner -->
+    		</div><!-- /.navbar -->
+
+    	</div> <!-- /.container -->
+    </div><!-- /.navbar-wrapper -->
+
+
+
+    <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide">
+    	<div class="carousel-inner">
+    		<div class="item active">
+    			<img src="/img/slide-01.jpg" alt="">
+    			<div class="container">
+    				<div class="carousel-caption">
+    					<h1>Example headline.</h1>
+    					<p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+    					<a class="btn btn-large btn-primary" href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Sign up today</a>
+    				</div>
+    			</div>
+    		</div>
+    		<div class="item">
+    			<img src="/img/slide-02.jpg" alt="">
+    			<div class="container">
+    				<div class="carousel-caption">
+    					<h1>Another example headline.</h1>
+    					<p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+    					<a class="btn btn-large btn-primary" href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Learn more</a>
+    				</div>
+    			</div>
+    		</div>
+    		<div class="item">
+    			<img src="/img/slide-03.jpg" alt="">
+    			<div class="container">
+    				<div class="carousel-caption">
+    					<h1>One more for good measure.</h1>
+    					<p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
+    					<a class="btn btn-large btn-primary" href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Browse gallery</a>
+    				</div>
+    			</div>
+    		</div>
+    	</div>
+    	<a class="left carousel-control" href="http://twitter.github.com/bootstrap/examples/carousel.html#myCarousel" data-slide="prev">‹</a>
+    	<a class="right carousel-control" href="http://twitter.github.com/bootstrap/examples/carousel.html#myCarousel" data-slide="next">›</a>
+    </div><!-- /.carousel -->
+
+
+
+    <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+    <div class="container marketing">
+
+    	<!-- Three columns of text below the carousel -->
+    	<div class="row">
+    		<div class="span4">
+    			<img class="img-circle" data-src="holder.js/140x140">
+    			<h2>Heading</h2>
+    			<p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</p>
+    			<p><a class="btn" href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">View details »</a></p>
+    		</div><!-- /.span4 -->
+    		<div class="span4">
+    			<img class="img-circle" data-src="holder.js/140x140">
+    			<h2>Heading</h2>
+    			<p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+    			<p><a class="btn" href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">View details »</a></p>
+    		</div><!-- /.span4 -->
+    		<div class="span4">
+    			<img class="img-circle" data-src="holder.js/140x140">
+    			<h2>Heading</h2>
+    			<p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+    			<p><a class="btn" href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">View details »</a></p>
+    		</div><!-- /.span4 -->
+    	</div><!-- /.row -->
+
+
+    	<!-- START THE FEATURETTES -->
+
+    	<hr class="featurette-divider">
+
+    	<div class="featurette">
+    		<img class="featurette-image pull-right" src="/img/browser-icon-chrome.png">
+    		<h2 class="featurette-heading">First featurette headling. <span class="muted">It'll blow your mind.</span></h2>
+    		<p class="lead">Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.</p>
+    	</div>
+
+    	<hr class="featurette-divider">
+
+    	<div class="featurette">
+    		<img class="featurette-image pull-left" src="/img/browser-icon-firefox.png">
+    		<h2 class="featurette-heading">Oh yeah, it's that good. <span class="muted">See for yourself.</span></h2>
+    		<p class="lead">Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.</p>
+    	</div>
+
+    	<hr class="featurette-divider">
+
+    	<div class="featurette">
+    		<img class="featurette-image pull-right" src="/img/browser-icon-safari.png">
+    		<h2 class="featurette-heading">And lastly, this one. <span class="muted">Checkmate.</span></h2>
+    		<p class="lead">Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur. Fusce dapibus, tellus ac cursus commodo.</p>
+    	</div>
+
+    	<hr class="featurette-divider">
+
+    	<!-- /END THE FEATURETTES -->
+
+
+    	<!-- FOOTER -->
+    	<footer>
+    		<p class="pull-right"><a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Back to top</a></p>
+    		<p>© 2012 Company, Inc. · <a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Privacy</a> · <a href="./Carousel Template · Bootstrap_files/Carousel Template · Bootstrap.htm">Terms</a></p>
+    	</footer>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/js/jquery-1.7.1.min.js"></script>
+    <script src="/js/bootstrap-transition.js"></script>
+    <script src="/js/bootstrap-alert.js"></script>
+    <script src="/js/bootstrap-modal.js"></script>
+    <script src="/js/bootstrap-dropdown.js"></script>
+    <script src="/js/bootstrap-scrollspy.js"></script>
+    <script src="/js/bootstrap-tab.js"></script>
+    <script src="/js/bootstrap-tooltip.js"></script>
+    <script src="/js/bootstrap-popover.js"></script>
+    <script src="/js/bootstrap-button.js"></script>
+    <script src="/js/bootstrap-collapse.js"></script>
+    <script src="/js/bootstrap-carousel.js"></script>
+    <script src="/js/bootstrap-typeahead.js"></script>
+    <script>
+    !function ($) {
+    	$(function(){
+          // carousel demo
+          $('#myCarousel').carousel()
+      })
+    }(window.jQuery)
+    </script>
+
+
+</body></html>

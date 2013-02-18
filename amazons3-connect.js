@@ -1,7 +1,7 @@
 // amazons3-connect.js
 // external nodejs component for Amazon S3 signed POST uploading
 
-// All code in this file (amazons3-connect.js) is free to be used by anyone.
+// All code in this file (amazons3-connect.js) is free to be used by anyone, even for commercial purposes.
 
 crypto = require("crypto");
 credentials = require("./s3credentials");

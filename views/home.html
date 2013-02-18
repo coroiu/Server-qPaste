@@ -1,0 +1,278 @@
+<html>
+	<head>
+		<title>qPaste - {{title}}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="{{description}}">
+		<meta name="author" content="{{author}}">
+
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link href="/css/home-stylesheet.css" rel="stylesheet">
+	</head>
+	<div class="site-overlay"></div>
+	<body>
+		<div class="container">
+			<div class="masthead">
+				<ul class="nav nav-pills pull-right">
+					<li class="active"><a href="#">Home</a></li>
+					<li><a href="#">About</a></li>
+				</ul>
+				<h3 class="muted">qPaste</h3>
+			</div>
+			<hr>
+			<div class="jumbotron">
+				<div class="view" id="default">
+					<div class="icon"></div>
+					<div class="content">
+						<h1>Instant Cloud Sharing</h1>
+						<p class="lead">Paste and share any file using the fast and reliable online cloud.<br>Completely free, instantly available.</p>
+						<a class="btn btn-large btn-success" href="#" data-bind="click: chooseFile">Upload<small class="hidden-phone"> (or drop file here)</small></a>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+
+				<div class="view overlay" id="drop">
+					<div class="center-wrapper">
+						<div class="content">
+							Drop here to upload
+						</div>
+					</div>
+				</div>
+
+				<div class="view" id="upload">
+					<h1>Share file</h1>
+					<p>Link <small>(instantly available)</small></p>
+					<div class="input-append">
+						<input id="link" class="input-xxlarge" type="text" value="">
+						<button class="btn" id="copy" type="button" data-bind="click: copy">Copy</button>
+					</div>
+					<div class="progress progress-success" style="display: none;">
+						<div class="bar" style="width: 100%;"></div>
+					</div>
+					<div class="progress progress-striped active">
+						<div id="progress" class="bar" style="width: 0%;"></div>
+					</div>
+					<div class="pull-right">
+						<a class="btn btn-large btn-success disabled" id="new-upload" href="#" data-bind="click: chooseFile">Upload another file<small class="hidden-phone"> (or drop file here)</small></a>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+			<hr>
+			<div class="row-fluid marketing">
+				<div class="span4">
+					<img src="/img/s3-64px.png">
+					<h4>Amazon S3</h4>
+					<p>Share your data using one of the biggest cloud storage services, fast and secure. All files are stored and kept online for up to 1 hour, then automatically deleted.</p>
+				</div>
+
+				<div class="span4">
+					<img src="/img/opensource-64px.png">
+					<h4>Open source</h4>
+					<p>We use Github for keeping the source public for anyone that would want to contribute. If there is anything you are curious about go ahead check it out! <a href="https://github.com/andenq/Server-qPaste">Github page &rarr;</a></p>
+				</div>
+
+				<div class="span4">
+					<img src="/img/desktop-64px.png">
+					<h4>Desktop sharing</h4>
+					<p>Download the qPaste client for Windows Desktop. Upload any file you want by copying it (or printscreening) and then pressing <span class="label">Ctrl + Shift + V</span> to instantly paste a link to whatever is in your clipboard. The upload is done in the background. <a href="https://github.com/andenq/Server-qPaste">Download &rarr;</a></p>
+				</div>
+			</div>
+			<hr>
+			<div class="footer muted">
+				<!-- PayPal Donation code -->
+				<div class="pull-right">
+					<small class="pull-left" style="padding-right: 10px;">Keep qPaste free </small>
+					<form action="https://www.paypal.com/cgi-bin/webscr" method="post" class="pull-right">
+					<input type="hidden" name="cmd" value="_s-xclick">
+					<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+					<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+					<img alt="" border="0" src="https://www.paypalobjects.com/sv_SE/i/scr/pixel.gif" width="1" height="1">
+					</form>
+				</div>
+				<p>Andreas Coroiu</p>
+			</div>
+		</div>
+
+		<form id="upload-form" enctype="multipart/form-data" style="display:none;">
+			<input type="file" name="file">
+
+			<!-- <input type="text" name="key">
+			<input type="text" name="AWSAccessKeyId">
+			<input type="text" name="Policy">
+			<input type="text" name="Signature">
+			<input type="text" name="Bucket">
+			<input type="text" name="acl">
+			<input type="text" name="Content-Type">
+			<input type="text" name="Content-Disposition"> -->
+		</form>
+
+		<form id="token-form" style="display:none;">
+			<input type="text" value="" name="mime">
+			<input type="text" value="" name="filename">
+		</form>
+
+		<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script src="/js/jquery.ui.widget.js"></script>
+		<script src="/js/jquery.fileupload.js"></script>
+		<script type="text/javascript" src="/js/jquery.zclip.min.js"></script>
+		<script type="text/javascript">
+			var Application = {
+				fadetime: 150,
+				uploading: false,
+
+				chooseFile: function () {
+					if (!Application.uploading) {
+						$('#upload-form input[type=file]').click();
+					}
+				},
+
+				showUploadDialog: function () {
+					$('.progress.progress-striped').show();
+					$('.progress.progress-success').hide();
+					$('.view#upload #new-upload').addClass('disabled');
+					$('#copy').removeClass('btn-success');
+					$('#copy').html('Copy');
+					$('.view#upload').fadeIn(Application.fadetime);
+					$('.view#default').hide();
+					Application.uploading = true;
+				},
+
+				showDefaultDialog: function () {
+					$('.view#upload').hide();
+					$('.view#default').show();
+				},
+
+				dragEnter: function (e) {
+					if (!Application.uploading) {
+						Application.browserIgnoreDrag(e);
+						Application.fadeInOverlay('.view#drop');
+					}
+				},
+
+				dragOver: function (e) {
+					Application.browserIgnoreDrag(e);
+				},
+
+				dragEnd: function (e) {
+					if (e.originalEvent.pageX < 10 || e.originalEvent.pageY < 10 || $(window).width() - e.originalEvent.pageX < 10 || $(window).height - e.originalEvent.pageY < 10) {
+						Application.fadeOutOverlay('.view#drop');
+					}
+				},
+
+				drop: function (e) {
+					Application.browserIgnoreDrag(e);
+					Application.fadeOutOverlay('.view#drop');
+					if (e.dataTransfer.files.length > 1) {
+						alert("Only uploads of single files are supported at this time.");
+					} else {
+						Application.showUploadDialog();
+						Application.upload(e.dataTransfer.files[0]);
+					}
+				},
+
+				copy: function () {
+					
+				},
+
+				upload: function (file) {
+					$('#token-form input[name="filename"]').val(file.name);
+					$('#token-form input[name="mime"]').val(file.type);
+
+					$.ajax({
+						type: 'POST',
+						url: '/upload-token',
+						data: $('#token-form').serialize()
+					}).done(function(data) {
+						$('#link').val(data.link);
+						var fd = new FormData();
+
+						$('#copy').zclip({
+							path: '/swf/ZeroClipboard.swf',
+							copy: data.link,
+							afterCopy:function(){
+								$('#copy').addClass('btn-success');
+								$('#copy').html('<i class="icon-ok"></i> Copied');
+							}
+						}).show();	
+
+						fd.append('key', data.storage.s3Policy.conditions.key);
+						fd.append('AWSAccessKeyId', data.storage.s3Key);
+						fd.append('Policy', data.storage.s3PolicyBase64);
+						fd.append('Signature', data.storage.s3Signature);
+						fd.append('Bucket', data.storage.s3Policy.conditions.bucket);
+						fd.append('acl', data.storage.s3Policy.conditions.acl);
+						fd.append('Content-Type', data.storage.s3Policy.conditions.mime);
+						fd.append('Content-Disposition', data.storage.s3Policy.conditions.disposition);
+
+						fd.append("file", file);
+						var xhr = $.ajaxSettings.xhr();
+
+						xhr.upload.addEventListener("progress", function (e) {
+							if(e.lengthComputable) {
+								$('#progress').css('width', Math.round((e.loaded/e.total) * 100) + '%');
+							}
+						}, false);
+						xhr.addEventListener("load", function (e) {
+							$('#progress').css('width', '100%');
+							$.ajax({
+								type: 'POST',
+								url: '/upload-done',
+								data: {token: data.token},
+								complete: function () {
+									$('.progress.progress-striped').hide();
+									$('.progress.progress-success').show();
+									$('.view#upload #new-upload').removeClass('disabled');
+									Application.uploading = false;
+								}
+							})
+						}, false);
+						/*xhr.addEventListener("load", uploadComplete, false);
+						xhr.addEventListener("error", uploadFailed, false);
+						xhr.addEventListener("abort", uploadCanceled, false);*/
+
+						xhr.open('POST', 'http://qpaste.s3.amazonaws.com/', true); //MUST BE LAST LINE BEFORE YOU SEND 
+						xhr.send(fd);
+					});
+				},
+
+				browserIgnoreDrag: function (e) {
+					e.originalEvent.stopPropagation();
+					e.originalEvent.preventDefault();
+				},
+
+				fadeInOverlay: function(overlay) {
+					$('.site-overlay').fadeIn(Application.fadetime);
+					$(overlay).fadeIn(Application.fadetime);
+				},
+
+				fadeOutOverlay: function(overlay) {
+					$('.site-overlay').fadeOut(Application.fadetime);
+					$(overlay).fadeOut(Application.fadetime);
+				}
+			};
+
+			ko.applyBindings(Application);
+			
+			$.event.props.push('dataTransfer');
+
+			$('body')
+			.bind('dragenter', Application.dragEnter)
+			.bind('dragleave', Application.dragEnd)
+			.bind("dragover", Application.browserIgnoreDrag)
+			.bind('drop', Application.drop);
+
+			$('#upload-form input[type=file]').change(function() {
+				if($(this).val() !== "" && !Application.uploading) {
+					Application.showUploadDialog();
+					Application.upload($('#upload-form input[type="file"]').prop('files')[0]);
+				}
+			});
+
+			/*$()
+			.bind('dragover', Application.dragOver);
+			.bind('drop', drop);*/
+
+		</script>
+	</body>
+</html>
