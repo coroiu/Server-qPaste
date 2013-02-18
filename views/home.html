@@ -2,6 +2,7 @@
 	<head>
 		<title>qPaste - {{title}}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="title" content="{{metatitle}}">
 		<meta name="description" content="{{description}}">
 		<meta name="author" content="{{author}}">
 
@@ -24,7 +25,7 @@
 					<div class="icon"></div>
 					<div class="content">
 						<h1>Instant Cloud Sharing</h1>
-						<p class="lead">Paste and share any file using the fast and reliable online cloud.<br>Completely free, instantly available.</p>
+						<p class="lead">Upload and share any file using the fast and reliable online cloud.<br>Download the desktop client to upload any clipboard data.<br>Everything completely free, instantly available.</p>
 						<a class="btn btn-large btn-success" href="#" data-bind="click: chooseFile">Upload<small class="hidden-phone"> (or drop file here)</small></a>
 						<a class="btn btn-large" href="http://download.qpaste.it/clients/windows/setup.exe">Download for Windows</a>
 						<div class="clearfix"></div>
@@ -178,7 +179,7 @@
 
 				upload: function (file) {
 					$('#token-form input[name="filename"]').val(file.name);
-					$('#token-form input[name="mime"]').val(file.type);
+					$('#token-form input[name="mime"]').val((file.type === '' ? 'application/octet-stream' : file.type));
 
 					$.ajax({
 						type: 'POST',
