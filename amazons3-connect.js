@@ -14,34 +14,37 @@ credentials = require("./s3credentials");
 
 	module.exports.setLimit = function (newLimit) {
 		limit = newLimit;
-	}
+	};
 
+	// Used for POST uploading
+	// Example: getS3Policy( 'uploads/',  'cat.jpg', 'application/octet-stream');
+	// Notice no leading slash on key.
     module.exports.getS3Policy = function( key, filename, mime ) {
 		var s3PolicyBase64, _date, _s3Policy;
 		_date = new Date();
 		s3Policy = {
-		"expiration": "" + (_date.getFullYear()) + "-" + (_date.getMonth() + 1) + "-" + (_date.getDate()) + "T" + (_date.getHours() + 1) + ":" + (_date.getMinutes()) + ":" + (_date.getSeconds()) + "Z",
+			"expiration": "" + (_date.getFullYear()) + "-" + (_date.getMonth() + 1) + "-" + (_date.getDate()) + "T" + (_date.getHours() + 1) + ":" + (_date.getMinutes()) + ":" + (_date.getSeconds()) + "Z",
 			"conditions": [
 				{ "Content-type": mime },
 				{ "key": key },
-				{ "bucket": bucketName },  
+				{ "bucket": bucketName },
 				{ "acl": "public-read" },
-				{ "Content-Disposition": "attachment; filename=" + filename }, 
-				["content-length-range", 0, limit * 1048576] //1 MB = 1 048 576 Bytes 
+				{ "Content-Disposition": "attachment; filename=" + filename },
+				["content-length-range", 0, limit * 1048576] //1 MB = 1 048 576 Bytes
 			]
 		};
 
 		s3PolicyReturn = {
-		"expiration": "" + (_date.getFullYear()) + "-" + (_date.getMonth() + 1) + "-" + (_date.getDate()) + "T" + (_date.getHours() + 1) + ":" + (_date.getMinutes()) + ":" + (_date.getSeconds()) + "Z",
+			"expiration": "" + (_date.getFullYear()) + "-" + (_date.getMonth() + 1) + "-" + (_date.getDate()) + "T" + (_date.getHours() + 1) + ":" + (_date.getMinutes()) + ":" + (_date.getSeconds()) + "Z",
 			"conditions": {
 				"key": key,
-				"bucket": bucketName,  
+				"bucket": bucketName,
 				"acl": "public-read",
 				"mime": mime,
 				"disposition": "attachment; filename=" + filename
 			}
 		};
-	  
+
 		s3Credentials = {
 			s3PolicyBase64: new Buffer( JSON.stringify( s3Policy ) ).toString( 'base64' ),
 			//s3Signature: crypto.createHmac('sha1', secretKey ).update( JSON.stringify(s3Policy) ).digest( 'base64' ),
@@ -49,10 +52,30 @@ credentials = require("./s3credentials");
 			//s3Signature: crypto.createHmac('sha1', new Buffer(secretKey, 'utf-8') ).update( new Buffer(JSON.stringify(s3Policy), 'utf-8') ).digest( 'base64' ),
 			s3Key: accessKey,
 			s3Policy: s3PolicyReturn
-		}
-	  
+		};
+
 		//callback(s3Credentials);
 		return s3Credentials;
+	};
+
+	// Used for signed GET downloading (with custom disposition: inline/attachment)
+	// For more information check:
+	// http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html
+	// https://forums.aws.amazon.com/message.jspa?messageID=233479
+	// http://s3.amazonaws.com/doc/s3-developer-guide/RESTAuthentication.html
+	//
+	// Example: getS3Url( '/uploads/cat.jpg', 'inline;filename=inlinecat.jpg', 123456);
+	// Notice leading slash on resource_url, 123456 is expirytime in seconds from epoch.
+	module.exports.getSignedS3Url = function ( resource_url, disposition, expires ) {
+		//var stringToSign = "HTTP-VERB \nContent-MD5\nContent-Type\nExpires\nCanonicalizedResource";
+		var stringToSign = "GET\n\n\n" + expires + "\n/" + bucketName + resource_url + "?response-content-disposition=" + new Buffer(disposition, 'ascii').toString('utf-8');
+
+		console.log(disposition);
+
+		//var stringSigned = encodeURIComponent( b64_hmac_sha1(secretKey, stringToSign ));
+		var stringSigned = crypto.createHmac('sha1', secretKey ).update( stringToSign ).digest( 'base64' );
+
+		return 'http://s3.amazonaws.com/' + bucketName + resource_url + '?AWSAccessKeyId=' + accessKey + '&Expires=' + expires + '&Signature=' + stringSigned + '&response-content-disposition=' + disposition;
 	};
 
 	/*****************************************************************************
@@ -71,7 +94,7 @@ credentials = require("./s3credentials");
 	var b64pad  = "="; /* base-64 pad character. "=" for strict RFC compliance   */
 	var chrsz   = 8;  /* bits per input character. 8 - ASCII; 16 - Unicode      */
 
-	b64_hmac_sha1 = function (key, data) { return binb2b64(core_hmac_sha1(key, data));}
+	b64_hmac_sha1 = function (key, data) { return binb2b64(core_hmac_sha1(key, data));};
 
 	/*
 	* Calculate the SHA-1 of an array of big-endian words, and a bit length
