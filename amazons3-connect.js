@@ -69,11 +69,7 @@ credentials = require("./s3credentials");
 	module.exports.getSignedS3Url = function ( resource_url, disposition, expires ) {
 		//var stringToSign = "HTTP-VERB \nContent-MD5\nContent-Type\nExpires\nCanonicalizedResource";
 		var stringToSign = "GET\n\n\n" + expires + "\n/" + bucketName + resource_url + "?response-content-disposition=" + new Buffer(disposition, 'ascii').toString('utf-8');
-
-		console.log(disposition);
-
-		//var stringSigned = encodeURIComponent( b64_hmac_sha1(secretKey, stringToSign ));
-		var stringSigned = crypto.createHmac('sha1', secretKey ).update( stringToSign ).digest( 'base64' );
+		var stringSigned = encodeURIComponent( b64_hmac_sha1(secretKey, stringToSign ));
 
 		return 'http://s3.amazonaws.com/' + bucketName + resource_url + '?AWSAccessKeyId=' + accessKey + '&Expires=' + expires + '&Signature=' + stringSigned + '&response-content-disposition=' + disposition;
 	};
