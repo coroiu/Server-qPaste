@@ -11,6 +11,7 @@ var app = express();
 
 var tokens = {};
 var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
+var s3resourcepath = "/uploads/";
 var host = process.env.host || "http://localhost:1337";
 var limit = process.env.limit || '20';
 
@@ -79,7 +80,7 @@ function ajaxContent(req, res, uid) {
 			break;
 		case 'embedd':
 			res.render('content-embedd', {
-				link: tokens[uid].filepath,
+				link: storage.getSignedS3Url( tokens[uid].resourcepath, 'inline;', Math.round((tokens[uid].time + 3600000)/1000) ),
 				mime: tokens[uid].mimetype
 			});
 			break;
@@ -123,12 +124,13 @@ app.post('/upload-token', function(req, res, next) {
 			storage: storage.getS3Policy("uploads/" + guid, fields.filename, fields.mime)
 		}));
 		tokens[guid] = {
-			filepath: '',
-			filename: fields.filename,
-			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime),
-			uploaded: false,
-			callback: [],
-			time: new Date().getTime()
+			filepath: '', // URL to file
+			resourcepath: '', // Relative Amazon S3 resource path (same as filepath but relative to http://s3.amazonaws.com/qpaste/...)
+			filename: fields.filename, // Original filename
+			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime), // Mime-type
+			uploaded: false, // Is file uploaded yet?
+			callback: [], // Callbacks for when the upload is complete
+			time: new Date().getTime() // Time when uploaded (epoch)
 		};
 		//Set timeout for file deletion
 		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
@@ -147,6 +149,7 @@ app.post('/upload-done', function(req, res, next) {
 		}
 
 		tokens[fields.token].filepath = s3path + fields.token;
+		tokens[fields.token].resourcepath = s3resourcepath + fields.token;
 		
 		for (i = 0; i < tokens[fields.token].callback.length; i++) {
 			tokens[fields.token].callback[i]();
