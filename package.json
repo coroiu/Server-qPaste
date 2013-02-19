@@ -5,6 +5,8 @@
         "formidable":"",
         "node-uuid":"",
         "express": "3.x",
-        "consolidate": ""
+        "consolidate": "",
+        "validator": "",
+        "mime": ""
     }
 }

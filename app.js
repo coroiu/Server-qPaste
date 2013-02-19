@@ -4,8 +4,10 @@ var util = require('util');
 var uuid = require('node-uuid');
 var fs = require('fs');
 var cons = require('consolidate');
+var mime = require('mime');
 var storage = require('./amazons3-connect');
 var app = express();
+//var sanitize = require('validator').sanitize; //Thought I'd use it, but regreted it. May come in handy later, commented untill then
 
 var tokens = {};
 var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
@@ -123,7 +125,7 @@ app.post('/upload-token', function(req, res, next) {
 		tokens[guid] = {
 			filepath: '',
 			filename: fields.filename,
-			mimetype: fields.mime,
+			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime),
 			uploaded: false,
 			callback: [],
 			time: new Date().getTime()
