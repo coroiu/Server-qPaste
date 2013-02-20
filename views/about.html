@@ -1,0 +1,69 @@
+<html>
+	<head>
+		<title>qPaste - {{title}}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="title" content="{{metatitle}}">
+		<meta name="description" content="{{description}}">
+		<meta name="author" content="{{author}}">
+		<meta property="og:image" content="http://qpaste.it/img/upload-128px.png"/>
+
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link href="/css/home-stylesheet.css" rel="stylesheet">
+	</head>
+	<div class="site-overlay"></div>
+	<body>
+		<div class="container">
+			<div class="masthead">
+				<ul class="nav nav-pills pull-right">
+					<li><a href="/">Home</a></li>
+					<li class="active"><a href="/about">About</a></li>
+				</ul>
+				<h3 class="muted">qPaste</h3>
+			</div>
+			<hr>
+			<h1>About</h1>
+			<h2>qPaste, what is it?</h2>
+			<p>
+				qPaste is an easy to use service for uploading and sharing content that doesn't need to stay permanently online.
+				It provides an easy to use interface for both uploading, viewing and sharing of your content, free of charge (though donation is very appreciated, hosting costs).
+			</p>
+
+			<h2>How did it start out?</h2>
+			<p>
+				The project started out as a simple and easy to share pastebin using a Windows client for upload.
+				The main idea behind it was a client that would be able to paste links to whatever happened to be in your clipboard by using a comfortable hotkey.
+			</p>
+			<p>
+				In the very beginning, all of it was based on a simple Node.js server that would save files locally and then deliver them by direct link.
+				However too big images and "The file is not uploaded yet" error pages quickly began to make themselves noticed and it was decided that some kind of interface was needed around the delivery.
+			</p>
+			<p>
+				After the delivery UI started to notify and automatically update the content as soon as it was uploaded, things started to look up. The image preview was added, along with a HTML5 sound player, text viewer and feature for embeddable resources.
+				The service started to look pretty good and it kind of felt like this was something that could be shared with the world. But sharing requires more than just local storage. Thus the Amazon S3 services was plugged in, and the service was now a complex proxy for viewing, downloading and sharing content.
+			</p>
+			<p>
+				This homepage, along with it's javascript asynchronous uploading, is the latest addition and gives those that can't or don't want to install the Windows client a chance to use the service in their web browser.
+			</p>
+
+			<h2>Open source</h2>
+			<p>
+				All parts of this service being developed by my (Andreas Coroiu) are open source and free for anyone to use for non-commercial purposes.<br>
+				If you want your own private sharing site feel free to modify the source and set up your own qPaste!
+			</p>
+			<p>
+				If there is anything you want to improve don't hesitate to clone the source, add all the great ideas you have and just push them all back. Every contribution is happily accepted!
+			</p>
+
+			<h2>Continuously evolving</h2>
+			<p>
+				There is still much left to be done, both regarding new features and old ones that need to be improved, and we're working on them whenever we can.
+				While this means that the service is still young, it also means that there is much left that it yet isn't offering the world.
+			</p>
+			<p>
+				Join now and help make this the tool of your choice, email and donations are right there at the bottom!
+			</p>
+			<hr>
+			{{> footer}}
+		</div>
+	</body>
+</html>

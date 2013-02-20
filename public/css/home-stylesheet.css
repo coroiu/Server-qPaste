@@ -10,6 +10,15 @@ input[type="text"] {
 	padding: 14px 4px;
 }
 
+.muted a {
+	color: #BBB;
+	text-decoration: none;
+}
+
+.muted a:hover {
+	color: #999;
+}
+
 .site-overlay {
 	display: none;
 	position: fixed;
