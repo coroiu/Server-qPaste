@@ -23,14 +23,34 @@ app.set('views', __dirname + '/views');
 
 storage.setLimit(parseInt(limit, 10));
 
+var metatitle = 'qPaste - Instant Cloud Sharing';
+var description = 'Upload and share any file using the fast and reliable online cloud.\nDownload the desktop client to upload any clipboard data.\nEverything completely free, instantly available.';
+var author = 'Andreas Coroiu';
+
 // VIEWS
 app.get('/', function(req, res){
 	res.render('home', {
 		title: 'Home',
-		metatitle: 'qPaste - Instant Cloud Sharing',
-		description: 'Upload and share any file using the fast and reliable online cloud.\nDownload the desktop client to upload any clipboard data.\nEverything completely free, instantly available.',
-		author: 'Andreas Coroiu',
-		limit: limit
+		metatitle: metatitle,
+		description: description,
+		author: author,
+		limit: limit,
+		partials: {
+			footer: 'footer'
+		}
+	});
+});
+
+app.get('/about', function(req, res){
+	res.render('about', {
+		title: 'About',
+		metatitle: metatitle,
+		description: description,
+		author: author,
+		limit: limit,
+		partials: {
+			footer: 'footer'
+		}
 	});
 });
 
