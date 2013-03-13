@@ -84,6 +84,7 @@ app.get('/content/:uid', function(req, res) {
 		});
 	} else if (tokens[uid].filepath === '') {
 		tokens[uid].callback.push(function () {
+			req.connection.setTimeout(3600000); //1 Hour timeout
 			ajaxContent(req, res, uid);
 		});
 	} else {
