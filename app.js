@@ -27,6 +27,11 @@ var metatitle = 'qPaste - Instant Cloud Sharing';
 var description = 'Upload and share any file using the fast and reliable online cloud.\nDownload the desktop client to upload any clipboard data.\nEverything completely free, instantly available.';
 var author = 'Andreas Coroiu';
 
+//Statistics
+var statistics = {
+	uploads: 0
+};
+
 // VIEWS
 app.get('/', function(req, res){
 	res.render('home', {
@@ -52,6 +57,11 @@ app.get('/about', function(req, res){
 			footer: 'footer'
 		}
 	});
+});
+
+app.get('/statistics', function(req, res) {
+	res.writeHead(200, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-cache' });
+	res.end(util.inspect(statistics));
 });
 
 //Main preview page
@@ -83,8 +93,8 @@ app.get('/content/:uid', function(req, res) {
 			title: 'Not found'
 		});
 	} else if (tokens[uid].filepath === '') {
+		req.connection.setTimeout(3600000); //1 Hour timeout
 		tokens[uid].callback.push(function () {
-			req.connection.setTimeout(3600000); //1 Hour timeout
 			ajaxContent(req, res, uid);
 		});
 	} else {
@@ -178,6 +188,7 @@ app.post('/upload-done', function(req, res, next) {
 
 		//Set timeout for file deletion
 		setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
+		statistics.uploads++;
 	});
 
 	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
