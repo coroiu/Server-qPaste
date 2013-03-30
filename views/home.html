@@ -44,10 +44,9 @@
 				<div class="view" id="upload">
 					<h1>Share file</h1>
 					<p>Link <small>(instantly available)</small></p>
-					<div class="input-append">
-						<input id="link" class="input-xxlarge" type="text" value="">
-						<button class="btn" id="copy" type="button" data-bind="click: copy">Copy</button>
-					</div>
+					<div class="input-xxlarge link" id="link"></div>
+					<button class="btn hidden-phone copy" id="copy" type="button" data-bind="click: copy">Copy</button>
+					<div class="clearfix"></div>
 					<div class="progress progress-success" style="display: none;">
 						<div class="bar" style="width: 100%;"></div>
 					</div>
@@ -175,7 +174,7 @@
 						url: '/upload-token',
 						data: $('#token-form').serialize()
 					}).done(function(data) {
-						$('#link').val(data.link);
+						$('#link').text(data.link);
 						var fd = new FormData();
 
 						$('#copy').zclip({

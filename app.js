@@ -94,6 +94,7 @@ app.get('/content/:uid', function(req, res) {
 		});
 	} else if (tokens[uid].filepath === '') {
 		req.connection.setTimeout(3600000); //1 Hour timeout
+		req.socket.setTimeout(3600000);
 		tokens[uid].callback.push(function () {
 			ajaxContent(req, res, uid);
 		});
