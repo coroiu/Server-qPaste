@@ -177,14 +177,16 @@
 						$('#link').text(data.link);
 						var fd = new FormData();
 
-						$('#copy').zclip({
-							path: '/swf/ZeroClipboard.swf',
-							copy: data.link,
-							afterCopy:function(){
-								$('#copy').addClass('btn-success');
-								$('#copy').html('<i class="icon-ok"></i> Copied');
-							}
-						}).show();	
+						if (Application.hasFlash()) {
+							$('#copy').zclip({
+								path: '/swf/ZeroClipboard.swf',
+								copy: data.link,
+								afterCopy:function(){
+									$('#copy').addClass('btn-success');
+									$('#copy').html('<i class="icon-ok"></i> Copied');
+								}
+							}).show();	
+						}
 
 						fd.append('key', data.storage.s3Policy.conditions.key);
 						fd.append('AWSAccessKeyId', data.storage.s3Key);
@@ -239,6 +241,10 @@
 				fadeOutOverlay: function(overlay) {
 					$('.site-overlay').fadeOut(Application.fadetime);
 					$(overlay).fadeOut(Application.fadetime);
+				},
+				
+				hasFlash: function() {
+					return (typeof navigator.plugins == "undefined" || navigator.plugins.length == 0) ? !!(new ActiveXObject("ShockwaveFlash.ShockwaveFlash")) : navigator.plugins["Shockwave Flash"];
 				}
 			};
 
@@ -259,10 +265,12 @@
 				}
 			});
 
+			if (!Application.hasFlash()) {
+				$('#copy').hide();
+			}
 			/*$()
 			.bind('dragover', Application.dragOver);
 			.bind('drop', drop);*/
-
 		</script>
 	</body>
 </html>
