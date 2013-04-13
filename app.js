@@ -147,7 +147,7 @@ app.post('/upload-token', function(req, res, next) {
 			return next(error);
 		}
 
-		guid = uuid.v1();
+		guid = uuid.v4();
 
 		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
 		res.end(JSON.stringify({
