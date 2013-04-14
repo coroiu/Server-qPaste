@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"appli",
+				"Application"
+			],
+			[
 				"uploa",
 				"uploads  (variable)"
 			],
@@ -223,7 +227,7 @@
 			"file": "views/home.html",
 			"settings":
 			{
-				"buffer_size": 9576,
+				"buffer_size": 9907,
 				"line_ending": "Windows"
 			}
 		},
@@ -231,7 +235,7 @@
 			"file": "public/css/home-stylesheet.css",
 			"settings":
 			{
-				"buffer_size": 2260,
+				"buffer_size": 2652,
 				"line_ending": "Windows"
 			}
 		},
@@ -413,6 +417,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"link",
 			"clearfix",
 			">\n",
 			"uploading",
@@ -442,7 +447,7 @@
 	"groups":
 	[
 		{
-			"selected": 5,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -450,15 +455,15 @@
 					"file": "views/home.html",
 					"settings":
 					{
-						"buffer_size": 9576,
+						"buffer_size": 9907,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								518,
-								518
+								8252,
+								8252
 							]
 						],
 						"settings":
@@ -556,7 +561,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 15.0,
+						"translation.y": 3492.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -566,15 +571,15 @@
 					"file": "public/css/home-stylesheet.css",
 					"settings":
 					{
-						"buffer_size": 2260,
+						"buffer_size": 2652,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								257,
-								257
+								1731,
+								1676
 							]
 						],
 						"settings":
@@ -671,7 +676,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1836.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
