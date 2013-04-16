@@ -10,11 +10,17 @@ var homepage = require('./homepage');
 var app = express();
 //var sanitize = require('validator').sanitize; //Thought I'd use it, but regreted it. May come in handy later, commented untill then
 
+var globals = {
+	limit: process.env.limit || '20',
+	host: process.env.host || "http://localhost:1337",
+	statistics: {
+		uploads: 0
+	}
+};
+
 var tokens = {};
 var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
 var s3resourcepath = "/uploads/";
-var host = process.env.host || "http://localhost:1337";
-var limit = process.env.limit || '20';
 
 /*jslint es5: true */
 app.use(express.static(__dirname + '/public'));
@@ -22,15 +28,10 @@ app.engine('html', cons.hogan);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 
-storage.setLimit(parseInt(limit, 10));
-
-//Statistics
-var statistics = {
-	uploads: 0
-};
+storage.setLimit(parseInt(globals.limit, 10));
 
 //Hook homepage into express
-homepage.hook(app);
+homepage.hook(globals, app);
 
 //Main preview page
 app.get('/get/:uid', function(req, res) {
@@ -120,7 +121,7 @@ app.post('/upload-token', function(req, res, next) {
 		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
 		res.end(JSON.stringify({
 			token: guid,
-			link: host + "/get/" + guid,
+			link: globals.host + "/get/" + guid,
 			storage: storage.getS3Policy("uploads/" + guid, fields.filename, fields.mime)
 		}));
 		tokens[guid] = {
@@ -157,7 +158,7 @@ app.post('/upload-done', function(req, res, next) {
 
 		//Set timeout for file deletion
 		setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
-		statistics.uploads++;
+		globals.statistics.uploads++;
 	});
 
 	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
@@ -173,7 +174,7 @@ app.use(function(err, req, res, next) {
 			break;
 		case 413:
 			res.writeHead(err.status, {'Content-type': 'text/plain'});
-			res.end('File too large. Max filesize is: ' + limit);
+			res.end('File too large. Max filesize is: ' + globals.limit);
 			break;
 		default:
 			res.writeHead(500, {'Content-type': 'text/plain'});

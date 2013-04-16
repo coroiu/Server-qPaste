@@ -2,9 +2,9 @@
 	<head>
 		<title>qPaste - {{title}}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="title" content="{{metatitle}}">
-		<meta name="description" content="{{description}}">
-		<meta name="author" content="{{author}}">
+		<meta name="title" content="{{strings.metatitle}}">
+		<meta name="description" content="{{strings.description}}">
+		<meta name="author" content="{{strings.author}}">
 		<meta property="og:image" content="http://qpaste.it/img/upload-128px.png"/>
 
 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -58,5 +58,6 @@
 			<hr>
 			{{> footer}}
 		</div>
+		{{> jsimports}}
 	</body>
 </html>
