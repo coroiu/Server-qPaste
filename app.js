@@ -7,6 +7,7 @@ var cons = require('consolidate');
 var mime = require('mime');
 var storage = require('./amazons3-connect');
 var homepage = require('./homepage');
+var database = require('./database');
 var app = express();
 //var sanitize = require('validator').sanitize; //Thought I'd use it, but regreted it. May come in handy later, commented untill then
 
@@ -18,7 +19,7 @@ var globals = {
 	}
 };
 
-var tokens = {};
+var callbacks = {};
 var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
 var s3resourcepath = "/uploads/";
 
@@ -29,77 +30,80 @@ app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 
 storage.setLimit(parseInt(globals.limit, 10));
+database.connect();
 
 //Hook homepage into express
 homepage.hook(globals, app);
 
 //Main preview page
 app.get('/get/:uid', function(req, res) {
-	var uid = req.params.uid;
-	if (tokens[uid] === undefined || tokens [uid].time === undefined) {
-		res.statusCode = 404;
-		res.render('get-error', {
-			title: 'Not found'
-		});
-	} else {
-		res.render('get', {
-			title: 'Get paste',
-			uid: uid,
-			time: timeleft(timediff(tokens[uid].time)),
-			timestamp: timediff(tokens[uid].time),
-			link: s3path + uid,
-			available: isAvailable(uid)
-		});
-	}
+	database.getUpload(req.params.uid, function (upload) {
+		if (upload === null) {
+			res.statusCode = 404;
+			res.render('get-error', {
+				title: 'Not found'
+			});
+		} else {
+			res.render('get', {
+				title: 'Get paste',
+				uid: upload.uid,
+				time: timeleft(timediff(upload.time)),
+				timestamp: timediff(upload.time),
+				link: s3path + upload.uid,
+				available: upload.uploaded
+			});
+		}
+	});
 });
 
 //Ajax content provider
 app.get('/content/:uid', function(req, res) {
-	var uid = req.params.uid;
-	if (tokens[uid] === undefined || tokens [uid].time === undefined) {
-		res.statusCode = 404;
-		res.render('get-error', {
-			title: 'Not found'
-		});
-	} else if (tokens[uid].filepath === '') {
-		req.connection.setTimeout(3600000); //1 Hour timeout
-		req.socket.setTimeout(3600000);
-		tokens[uid].callback.push(function () {
-			ajaxContent(req, res, uid);
-		});
-	} else {
-		ajaxContent(req, res, uid);
-	}
+	database.getUpload(req.params.uid, function (upload) {
+		if (upload === null) {
+			res.statusCode = 404;
+			res.render('get-error', {
+				title: 'Not found'
+			});
+		} else if (!upload.uploaded) {
+			req.connection.setTimeout(3600000); //1 Hour timeout
+			req.socket.setTimeout(3600000);
+			callbacks[upload.uid].push(function () {
+				ajaxContent(req, res, upload);
+			});
+		} else {
+			ajaxContent(req, res, upload);
+		}
+	});
 });
 
-function ajaxContent(req, res, uid) {
-	switch (filetype(tokens[uid].mimetype)) {
+function ajaxContent(req, res, upload) {
+	switch (filetype(upload.mimetype)) {
 		case 'image':
 			res.render('content-image', {
-				link: tokens[uid].filepath
+				link: upload.filepath
 			});
 			break;
 		case 'embedd':
 			res.render('content-embedd', {
-				link: storage.getSignedS3Url( tokens[uid].resourcepath, 'inline;', Math.round((tokens[uid].time + 3600000)/1000) ),
-				mime: tokens[uid].mimetype
+				link: storage.getSignedS3Url( upload.resourcepath, 'inline;', Math.round((upload.time + 3600000)/1000) ),
+				mime: upload.mimetype
 			});
 			break;
 		case 'text':
 			res.render('content-text', {
-				link: tokens[uid].filepath
+				link: upload.filepath
 			});
 			break;
 		case 'audio':
 			res.render('content-audio', {
-				link: tokens[uid].filepath,
-				mime: tokens[uid].mimetype
+				link: upload.filepath,
+				mime: upload.mimetype
 			});
 			break;
 		default:
 			res.render('content-dl', {
-				link: tokens[uid].filepath,
-				content: tokens[uid].filepath
+				link: upload.filepath,
+				content: upload.filepath
 			});
 	}
 }
@@ -116,15 +120,17 @@ app.post('/upload-token', function(req, res, next) {
 			return next(error);
 		}
 
-		guid = uuid.v4();
+		uid = uuid.v4();
 
 		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
 		res.end(JSON.stringify({
-			token: guid,
-			link: globals.host + "/get/" + guid,
-			storage: storage.getS3Policy("uploads/" + guid, fields.filename, fields.mime)
+			token: uid,
+			link: globals.host + "/get/" + uid,
+			storage: storage.getS3Policy("uploads/" + uid, fields.filename, fields.mime)
 		}));
-		tokens[guid] = {
+
+		callbacks[uid] = [];
+		/*tokens[guid] = {
 			filepath: '', // URL to file
 			resourcepath: '', // Relative Amazon S3 resource path (same as filepath but relative to http://s3.amazonaws.com/qpaste/...)
 			filename: fields.filename, // Original filename
@@ -132,7 +138,8 @@ app.post('/upload-token', function(req, res, next) {
 			uploaded: false, // Is file uploaded yet?
 			callback: [], // Callbacks for when the upload is complete
 			time: new Date().getTime() // Time when uploaded (epoch)
-		};
+		};*/
+		database.newUpload(uid, fields.filename, (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime));
 		//Set timeout for file deletion
 		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
 	});
@@ -141,23 +148,27 @@ app.post('/upload-token', function(req, res, next) {
 app.post('/upload-done', function(req, res, next) {
 	var form = new formidable.IncomingForm();
 
-	form.parse(req, function(err, fields, files) {
-		if (!fields.token) {
+	form.parse(req, function(err, formFields, files) {
+		if (!formFields.token) {
 			var error = new Error('Token missing.');
 			error.name = "Token missing";
 			error.status = 400;
 			return next(error);
 		}
 
-		tokens[fields.token].filepath = s3path + fields.token;
-		tokens[fields.token].resourcepath = s3resourcepath + fields.token;
+		var updateFields = {
+			filepath: s3path + formFields.token,
+			resourcepath: s3resourcepath + formFields.token,
+			uploaded: true
+		};
 		
-		for (i = 0; i < tokens[fields.token].callback.length; i++) {
-			tokens[fields.token].callback[i]();
+		database.updateUpload(formFields.token, updateFields);
+		for (i = 0; i < callbacks.length; i++) {
+			callbacks[formFields.token][i]();
 		}
 
 		//Set timeout for file deletion
-		setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
+		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
 		globals.statistics.uploads++;
 	});
 
