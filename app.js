@@ -6,6 +6,7 @@ var fs = require('fs');
 var cons = require('consolidate');
 var mime = require('mime');
 var storage = require('./amazons3-connect');
+var homepage = require('./homepage');
 var app = express();
 //var sanitize = require('validator').sanitize; //Thought I'd use it, but regreted it. May come in handy later, commented untill then
 
@@ -23,46 +24,13 @@ app.set('views', __dirname + '/views');
 
 storage.setLimit(parseInt(limit, 10));
 
-var metatitle = 'qPaste - Instant Cloud Sharing';
-var description = 'Upload and share any file using the fast and reliable online cloud.\nDownload the desktop client to upload any clipboard data.\nEverything completely free, instantly available.';
-var author = 'Andreas Coroiu';
-
 //Statistics
 var statistics = {
 	uploads: 0
 };
 
-// VIEWS
-app.get('/', function(req, res){
-	res.render('home', {
-		title: 'Home',
-		metatitle: metatitle,
-		description: description,
-		author: author,
-		limit: limit,
-		partials: {
-			footer: 'footer'
-		}
-	});
-});
-
-app.get('/about', function(req, res){
-	res.render('about', {
-		title: 'About',
-		metatitle: metatitle,
-		description: description,
-		author: author,
-		limit: limit,
-		partials: {
-			footer: 'footer'
-		}
-	});
-});
-
-app.get('/statistics', function(req, res) {
-	res.writeHead(200, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-cache' });
-	res.end(util.inspect(statistics));
-});
+//Hook homepage into express
+homepage.hook(app);
 
 //Main preview page
 app.get('/get/:uid', function(req, res) {
