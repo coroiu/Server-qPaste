@@ -47,8 +47,9 @@ app.get('/get/:uid', function(req, res) {
 			res.render('get', {
 				title: 'Get paste',
 				uid: upload.uid,
-				time: timeleft(timediff(upload.time)),
-				timestamp: timediff(upload.time),
+				//time: timeleft(timediff(upload.time)),
+				time: timeleft(timediff(upload.expire)),
+				timestamp: timediff(upload.expire),
 				link: s3path + upload.uid,
 				available: upload.uploaded
 			});
@@ -221,7 +222,7 @@ function isAvailable(token) {
 
 function timediff(time) {
 	now = new Date().getTime();
-	kickoff = time;
+	kickoff = time.getTime();
 	return kickoff - now;
 }
 
@@ -236,7 +237,7 @@ function timeleft(diff) {
 	mm = mins  - hours * 60;
 	ss = secs  - mins  * 60;
 
-	return mm + "m " + ss + "s";
+	return hh + "h " + mm + "m " + ss + "s";
 }
 
 function filetype(mimetype) {

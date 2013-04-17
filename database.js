@@ -1,7 +1,7 @@
 //Database module, encapsulates all calls to the databse
 
 (function() {
-	var collections = ["uploads"];
+	var collections = ["uploads", "users"];
 	var db = null;
 
 	module.exports.connect = function () {
@@ -31,9 +31,14 @@
 		};
 		var mongourl = generate_mongo_url(mongo);
 		db = require('mongojs').connect(mongourl, collections);
+
+		//1 second allows the 'expire' specify when the document should be deleted
+		db.uploads.ensureIndex({expire: 1}, {expireAfterSeconds: 1});
 	};
 
 	module.exports.newUpload = function (uid, filename, mimetype) {
+		var expire = new Date();
+		expire.setDate(new Date().getDate() + 1);
 		var upload = {
 			uid: uid,
 			filepath: '', // URL to file
@@ -42,7 +47,7 @@
 			mimetype: mimetype, // Mime-type
 			uploaded: false, // Is file uploaded yet?
 			callback: [], // Callbacks for when the upload is complete
-			time: new Date().getTime() // Time when uploaded (epoch)
+			expire: expire // Datetime for expiration (auto delete from database)
 		};
 
 		db.uploads.save(upload);
