@@ -127,7 +127,7 @@
 				},
 
 				dragEnter: function (e) {
-					if (!Application.uploading) {
+					if (!Application.uploading && e.dataTransfer.files.length > 0) {
 						Application.browserIgnoreDrag(e);
 						Application.fadeInOverlay('.view#drop');
 					}
