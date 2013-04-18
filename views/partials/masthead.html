@@ -5,7 +5,7 @@
 			<li {{#about}}class="active"{{/about}}><a href="/about">About</a></li>
 		</ul>
 		<ul class="nav nav-pills pull-right account hidden-phone">
-			<li class="dropdown">
+			<li class="dropdown {{#account}}active{{/account}}">
 				<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">Account <b class="caret"></b> </a>
 				<div id="acc-login" class="dropdown-menu right login">
 					<div id="overlay" class="overlay hide"><div class="spinner"></div></div>
@@ -30,10 +30,10 @@
 				<div id="acc-menu" class="dropdown-menu right menu">
 					<div id="text-username" class="username"></div>
 					<ul >
-						<li><a href="#">Profile</a></li>
-						<li><a href="#">Settings</a></li>
-						<li><a href="#">Active Uploads</a></li>
-						<li><a href="#">Wallet</a></li>
+						<li><a href="/account#overview"><i class="icon-user"></i> Overview</a></li>
+						<li><a href="/accoun#settings"><i class="icon-wrench"></i> Settings</a></li>
+						<li><a href="/account#uploads"><i class="icon-upload"></i> Active Uploads</a></li>
+						<li><a href="/account#wallet"><i class="icon-folder-close"></i> Wallet</a></li>
 						<li class="divider"></li>
 						<li><a href="#" onclick="account.logout(); return false;"><i class="icon-off"></i> Logout</a></li>
 					</ul>

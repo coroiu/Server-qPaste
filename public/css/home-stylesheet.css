@@ -6,9 +6,9 @@ body {
 /* Default bootstrap
  * For some reason this is lost and inputs look wierd
  */
-input[type="text"], input[type="password"] {
+/*input[type="text"], input[type="password"] {
 	padding: 14px 4px;
-}
+}*/
 
 .hide {
 	display: none !important;
@@ -77,6 +77,17 @@ input[type="text"], input[type="password"] {
 	border-bottom: 1px solid #eee;
 	padding: 5px 10px 10px 15px;
 	margin-bottom: 5px;
+}
+
+.navbar-fixed {
+	position: fixed;
+	top: -1px;
+	z-index: 99;
+}
+
+.navbar-fixed .navbar-inner {
+	border-top-left-radius: 0 !important;
+	border-top-right-radius: 0 !important;
 }
 
 .site-overlay {

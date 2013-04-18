@@ -8,8 +8,8 @@ var account = new (function () {
 			if (err) {
 				modal('Error occurred', JSON.stringify(err));
 			}
-			$('#acc-login #overlay').addClass('hide');
 			updateMenuUi();
+			$('#acc-login #overlay').addClass('hide');
 		});
 	};
 
@@ -74,6 +74,8 @@ var account = new (function () {
 				$('#acc-menu').addClass('hide');
 				_user = null;
 			}
+			$('#login-form #username').val('');
+			$('#login-form #password').val('');
 		});
 	};
 

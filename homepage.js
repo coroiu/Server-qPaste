@@ -42,6 +42,20 @@
 			});
 		});
 
+		app.get('/account', function(req, res){
+			res.render('account', {
+				title: 'Account Management',
+				account: true,
+				strings: strings,
+				globals: globals,
+				partials: {
+					masthead: 'partials/masthead',
+					footer: 'partials/footer',
+					jsimports: 'partials/jsimports'
+				}
+			});
+		});
+
 		app.get('/statistics', function(req, res) {
 			res.writeHead(200, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-cache' });
 			res.end(util.inspect(statistics));
