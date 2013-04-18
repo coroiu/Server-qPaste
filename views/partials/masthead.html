@@ -1,16 +1,35 @@
 <div class="masthead">
 	<div class="pull-right">
 		<ul class="nav nav-pills pull-left">
-			<li><a href="/">Home</a></li>
-			<li><a href="/about">About</a></li>
+			<li {{#home}}class="active"{{/home}}><a href="/">Home</a></li>
+			<li {{#about}}class="active"{{/about}}><a href="/about">About</a></li>
 		</ul>
 		<ul class="nav nav-pills pull-right account hidden-phone">
 			<li class="dropdown">
 				<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">Account <b class="caret"></b> </a>
-				<ul class="dropdown-menu" role="menu">
+				<div class="dropdown-menu right login">
+					<form id="login-form">
+						<fieldset>
+							<legend>Login</legend>
+							<label>
+								Username
+								<input type="text" placeholder="">
+							</label>
+							<label>
+								Password
+								<input type="text" placeholder="">
+							</label>
+							<div class="pull-right">
+								<a class="btn" href="">Register</a>
+								<button type="submit" class="btn btn-success">Login</button>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+				<!--<ul class="dropdown-menu" role="menu">
 					<li><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
 					<li class="divider"></li>
-				</ul>
+				</ul>-->
 			</li>
 		</ul>
 	</div>
