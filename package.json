@@ -8,6 +8,7 @@
         "consolidate": "",
         "validator": "",
         "mime": "",
-        "mongojs": ""
+        "mongojs": "",
+        "connect-mongo": ""
     }
 }

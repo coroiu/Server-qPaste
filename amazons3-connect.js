@@ -3,10 +3,9 @@
 
 // All code in this file (amazons3-connect.js) is free to be used by anyone, even for commercial purposes.
 
-crypto = require("crypto");
-credentials = require("./s3credentials");
-
 (function() {
+	var crypto = require("crypto");
+	var credentials = require("./s3credentials");
 	var accessKey = credentials.accessKey;
 	var secretKey = credentials.secretKey;
 	var bucketName = credentials.bucketName;

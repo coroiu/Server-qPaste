@@ -5,6 +5,8 @@ var uuid = require('node-uuid');
 var fs = require('fs');
 var cons = require('consolidate');
 var mime = require('mime');
+var MongoStore = require('connect-mongo')(express);
+//var passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
 var storage = require('./amazons3-connect');
 var homepage = require('./homepage');
 var database = require('./database');
@@ -28,11 +30,19 @@ app.use(express.static(__dirname + '/public'));
 app.engine('html', cons.hogan);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
+app.use(express.cookieParser());
+app.use(express.session({
+	store: new MongoStore(database.config()),
+	secret: 'imissmycat',
+	cookie: {  path: '/', maxAge: 2629743830 } //1 month
+}));
+app.use(app.router);
 
 storage.setLimit(parseInt(globals.limit, 10));
 database.connect();
 
 //Hook homepage into express
+//homepage.passport(passport);
 homepage.hook(globals, app);
 
 //Main preview page
@@ -58,7 +68,7 @@ app.get('/get/:uid', function(req, res) {
 });
 
 //Ajax content provider
-app.get('/content/:uid', function(req, res) {
+app.get('/content/:uid', function (req, res) {
 	database.getUpload(req.params.uid, function (upload) {
 		if (upload === null) {
 			res.statusCode = 404;
@@ -77,7 +87,7 @@ app.get('/content/:uid', function(req, res) {
 	});
 });
 
-function ajaxContent(req, res, upload) {
+function ajaxContent (req, res, upload) {
 	switch (filetype(upload.mimetype)) {
 		case 'image':
 			res.render('content-image', {
@@ -110,10 +120,10 @@ function ajaxContent(req, res, upload) {
 }
 
 // API
-app.post('/upload-token', function(req, res, next) {
+app.post('/upload-token', function (req, res, next) {
 	var form = new formidable.IncomingForm();
 
-	form.parse(req, function(err, fields, files) {
+	form.parse(req, function (err, fields, files) {
 		if (!fields.filename || !fields.mime) {
 			var error = new Error('Fields missing.');
 			error.name = "Fields missing";
@@ -146,7 +156,7 @@ app.post('/upload-token', function(req, res, next) {
 	});
 });
 
-app.post('/upload-done', function(req, res, next) {
+app.post('/upload-done', function (req, res, next) {
 	var form = new formidable.IncomingForm();
 
 	form.parse(req, function(err, formFields, files) {
@@ -177,10 +187,76 @@ app.post('/upload-done', function(req, res, next) {
 	res.end("");
 });
 
+app.post('/user/login', function (req, res, next) {
+	var form = new formidable.IncomingForm();
+	form.parse(req, function(err, formFields, files) {
+		if (!formFields.username || !formFields.password) {
+			var error = new Error('Fields missing.');
+			error.name = "Fields missing";
+			error.status = 400;
+			return next(error);
+		}
+		
+		database.authenticateUser(formFields.username, formFields.password, function (err, user) {
+			if (err) { return next(err); }
+			else if (user === null) {
+				var error = new Error('Wrong username or password.');
+				error.name = "Wrong username or password.";
+				error.status = 401;
+				return next(error);
+			} else {
+				res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+				res.end(util.inspect(user));
+				req.session.userid = user._id;
+				req.session.save();
+			}
+		});
+	});
+});
+
+app.post('/user/register', function (req, res, next) {
+	var form = new formidable.IncomingForm();
+	form.parse(req, function(err, formFields, files) {
+		if (!formFields.username || !formFields.password) {
+			var error = new Error('Fields missing.');
+			error.name = "Fields missing";
+			error.status = 400;
+			return next(error);
+		}
+
+		database.registerUser(formFields.username, formFields.password, function (err) {
+			if (err) { return next(err); }
+			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+			res.end('');
+		});
+	});
+});
+
+app.get('/user', function (req, res, next) {
+	var id = req.session.userid;
+	console.log(req.session);
+	if (id) {
+		database.getUser(id, function (err, user) {
+			if (err) { return next(err); }
+			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+			res.end(JSON.stringify({
+				logged_in: true,
+				username: user.username
+			}));
+		});
+	} else {
+		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+		res.end(JSON.stringify({
+			logged_in: false
+		}));
+	}
+});
+
 // ERROR HANDLING
 app.use(function(err, req, res, next) {
 	switch (err.status) {
 		case 400:
+		case 401:
 			res.writeHead(err.status, {'Content-type': 'text/plain'});
 			res.end(err.name);
 			break;

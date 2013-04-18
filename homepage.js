@@ -7,10 +7,17 @@
 		author: 'Andreas Coroiu'
 	};
 
+	var passport = null;
+
+	module.exports.passport = function (_passport) {
+		passport = _passport;
+	};
+
 	module.exports.hook = function (globals, app) {
 		app.get('/', function(req, res){
 			res.render('home', {
 				title: 'Instant Cloud Sharing',
+				home: true,
 				strings: strings,
 				globals: globals,
 				partials: {
@@ -24,6 +31,7 @@
 		app.get('/about', function(req, res){
 			res.render('about', {
 				title: 'About',
+				about: true,
 				strings: strings,
 				globals: globals,
 				partials: {
