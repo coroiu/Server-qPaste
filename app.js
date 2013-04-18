@@ -78,9 +78,11 @@ app.get('/content/:uid', function (req, res) {
 		} else if (!upload.uploaded) {
 			req.connection.setTimeout(3600000); //1 Hour timeout
 			req.socket.setTimeout(3600000);
-			callbacks[upload.uid].push(function () {
-				ajaxContent(req, res, upload);
-			});
+			if (callbacks[upload.uid]) {
+				callbacks[upload.uid].push(function () {
+					ajaxContent(req, res, upload);
+				});
+			}
 		} else {
 			ajaxContent(req, res, upload);
 		}
@@ -214,6 +216,12 @@ app.post('/user/login', function (req, res, next) {
 	});
 });
 
+app.get('/user/logout', function (req, res, next) {
+	req.session.destroy();
+	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+	res.end('');
+});
+
 app.post('/user/register', function (req, res, next) {
 	var form = new formidable.IncomingForm();
 	form.parse(req, function(err, formFields, files) {
@@ -234,7 +242,6 @@ app.post('/user/register', function (req, res, next) {
 
 app.get('/user', function (req, res, next) {
 	var id = req.session.userid;
-	console.log(req.session);
 	if (id) {
 		database.getUser(id, function (err, user) {
 			if (err) { return next(err); }

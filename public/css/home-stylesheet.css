@@ -6,8 +6,12 @@ body {
 /* Default bootstrap
  * For some reason this is lost and inputs look wierd
  */
-input[type="text"] {
+input[type="text"], input[type="password"] {
 	padding: 14px 4px;
+}
+
+.hide {
+	display: none !important;
 }
 
 .muted a {
@@ -19,28 +23,60 @@ input[type="text"] {
 	color: #999;
 }
 
-.nav.account {
+.masthead .account {
 	border-left: 1px solid #eee;
 	padding-left: 2px;
 }
 
-.dropdown-menu.right {
+.dropdown .right {
 	left: auto;
-	right: 0px;
+	right: 0;
 }
 
-.dropdown-menu.right::before {
+.dropdown .right::before {
 	left: auto !important;
 	right: 9px;
 }
 
-.dropdown-menu.right::after {
+.dropdown .right::after {
 	left: auto !important;
 	right: 10px;
 }
 
-.dropdown-menu.login {
+.dropdown .login {
 	padding: 0 10px;
+}
+
+.dropdown .login .overlay {
+	background: rgba(0, 0, 0, 0.1);
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	top: 0;
+	left: 0;
+}
+
+.dropdown .login .overlay .spinner {
+	background: url(/img/zoom-preloader.gif);
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	right: 50%;
+	bottom: 50%;
+	margin: 0 -12px -12px 0;
+}
+
+.dropdown .menu ul {
+	list-style: none;
+	margin: 0;
+}
+
+.dropdown .menu .username {
+	font-size: 12pt;
+	font-weight: bold;
+	border-bottom: 1px solid #eee;
+	padding: 5px 10px 10px 15px;
+	margin-bottom: 5px;
 }
 
 .site-overlay {

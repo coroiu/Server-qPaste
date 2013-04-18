@@ -7,17 +7,18 @@
 		<ul class="nav nav-pills pull-right account hidden-phone">
 			<li class="dropdown">
 				<a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">Account <b class="caret"></b> </a>
-				<div class="dropdown-menu right login">
-					<form id="login-form">
+				<div id="acc-login" class="dropdown-menu right login">
+					<div id="overlay" class="overlay hide"><div class="spinner"></div></div>
+					<form id="login-form" onsubmit="account.login(); return false;">
 						<fieldset>
 							<legend>Login</legend>
 							<label>
 								Username
-								<input type="text" placeholder="">
+								<input type="text" id="username">
 							</label>
 							<label>
 								Password
-								<input type="text" placeholder="">
+								<input type="password" id="password">
 							</label>
 							<div class="pull-right">
 								<a class="btn" href="">Register</a>
@@ -26,12 +27,35 @@
 						</fieldset>
 					</form>
 				</div>
+				<div id="acc-menu" class="dropdown-menu right menu">
+					<div id="text-username" class="username"></div>
+					<ul >
+						<li><a href="#">Profile</a></li>
+						<li><a href="#">Settings</a></li>
+						<li><a href="#">Active Uploads</a></li>
+						<li><a href="#">Wallet</a></li>
+						<li class="divider"></li>
+						<li><a href="#" onclick="account.logout(); return false;"><i class="icon-off"></i> Logout</a></li>
+					</ul>
+				</div>
 				<!--<ul class="dropdown-menu" role="menu">
 					<li><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
 					<li class="divider"></li>
 				</ul>-->
 			</li>
 		</ul>
+		<div id="modal" class="modal fade">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 id="modal-label">Modal header</h3>
+			</div>
+			<div class="modal-body" id="modal-body">
+				
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal">Close</button>
+			</div>
+		</div>
 	</div>
 	<h3 class="muted">qPaste</h3>
 </div>
