@@ -15,7 +15,7 @@
 
 		var walletSchema = mongoose.Schema({
 			balance: {type: Number, 'default': 0},
-			transactions: [Transaction]
+			transactions: {type: mongoose.Schema.ObjectId, ref: transactionSchema}
 		});
 		var Wallet = mongoose.model('Wallet', walletSchema);
 
@@ -23,7 +23,7 @@
 			username: String,
 			passwordHash: String,
 			creationDate: {type: Date, 'default': new Date()},
-			wallet: {type: Wallet, 'default': new Wallet()},
+			wallet: {type: mongoose.Schema.ObjectId, ref: walletSchema, 'default': new Wallet()},
 			salt: {type: String, 'default': uuid.v4()}
 		});
 
