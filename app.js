@@ -144,7 +144,8 @@ app.post('/upload-token', function (req, res, next) {
 
 		var upload = new Upload({
 			filename: fields.filename,
-			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime)
+			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime),
+			uploader: (req.session.userid ? req.session.userid : '')
 		});
 		upload.save(function (err, upload) {
 			if (err) {

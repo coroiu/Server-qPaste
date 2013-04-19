@@ -13,7 +13,8 @@
 			filename: String, // Original filename
 			mimetype: String, // Mime-type
 			uploaded: {type: Boolean, 'default': false}, // Is file uploaded yet?
-			expire: {type: Date, 'default': expire} // Datetime for expiration (auto delete from database)
+			expire: {type: Date, 'default': expire}, // Datetime for expiration (auto delete from database)
+			uploader: String
 		});
 
 		uploadSchema.virtual('url').get(function () {
