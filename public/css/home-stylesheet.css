@@ -66,6 +66,16 @@ body {
 	margin: 0 -12px -12px 0;
 }
 
+.dropdown .login legend {
+	margin-bottom: 10px
+}
+
+.dropdown .login .error {
+	font-size: 8pt;
+	color: red;
+	margin-bottom: 10px;
+}
+
 .dropdown .menu ul {
 	list-style: none;
 	margin: 0;

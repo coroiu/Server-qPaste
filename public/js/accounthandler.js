@@ -3,14 +3,23 @@ var account = new (function () {
 	var _user = null;
 
 	this.login = function () {
-		$('#acc-login #overlay').removeClass('hide');
-		login($('#login-form #username').val(), $('#login-form #password').val(), function (err) {
-			if (err) {
-				modal('Error occurred', JSON.stringify(err));
-			}
-			updateMenuUi();
-			$('#acc-login #overlay').addClass('hide');
-		});
+		if ($('#login-form #username').val() === '' || $('#login-form #password').val() === '') {
+			loginError('Empty fields');
+		} else {
+			$('#acc-login #overlay').removeClass('hide');
+			login($('#login-form #username').val(), $('#login-form #password').val(), function (err) {
+				$('#acc-login #overlay').addClass('hide');
+				if (err) {
+					if (err.status == 401) {
+						loginError('Wrong username or password');
+					} else {
+						modal('Error occurred', JSON.stringify(err));
+					}
+				} else {
+					updateMenuUi();
+				}
+			});
+		}
 	};
 
 	this.logout = function () {
@@ -44,7 +53,7 @@ var account = new (function () {
 		}).done(function () {
 			callback();
 		}).fail(function (jqXHR, textStatus, err) {
-			callback(err);
+			callback(jqXHR);
 		});
 	};
 
@@ -52,6 +61,12 @@ var account = new (function () {
 		$('#modal-label').text(label);
 		$('#modal-body').text(body);
 		$('#modal').modal('show');
+	};
+
+	loginError = function (body) {
+		var element = $('#login-form #error');
+		$(element).text(body);
+		$(element).show();
 	};
 
 	checkSessionStatus = function (callback) {
@@ -76,6 +91,7 @@ var account = new (function () {
 			}
 			$('#login-form #username').val('');
 			$('#login-form #password').val('');
+			$('#login-form #error').hide();
 		});
 	};
 
