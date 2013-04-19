@@ -248,7 +248,7 @@ app.post('/user/register', function (req, res, next) {
 app.get('/user', function (req, res, next) {
 	var id = req.session.userid;
 	if (id) {
-		database.getUser(id, function (err, user) {
+		User.getUser(id, function (err, user) {
 			if (err) { return next(err); }
 			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
 			res.end(JSON.stringify({

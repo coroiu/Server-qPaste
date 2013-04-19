@@ -80,6 +80,27 @@
 			});
 		};
 
+		userSchema.statics.getUser = function (_id, callback) {
+			User.findOne({ _id: new mongoose.Types.ObjectId(_id) }, function (err, user) {
+				var error;
+				if (err) {
+					error = new Error('Couldn\'t search for user in database.');
+					error.name = "Database error";
+					error.status = 500;
+					error.originalError = err;
+					return callback(error);
+				} else if (user === null) {
+					error = new Error('Couldn\'t the user in the database. Very strange seeing as the user is apparently logged in.');
+					error.name = "Database error";
+					error.status = 500;
+					error.originalError = err;
+					return callback(error);
+				}
+				
+				return callback(null, user);
+			});
+		};
+
 		var User = mongoose.model('User', userSchema);
 		return User;
 	};
