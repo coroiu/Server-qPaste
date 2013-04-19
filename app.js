@@ -1,17 +1,20 @@
 var express = require('express');
 var formidable = require('formidable');
 var util = require('util');
-var uuid = require('node-uuid');
 var fs = require('fs');
 var cons = require('consolidate');
 var mime = require('mime');
-var MongoStore = require('connect-mongo')(express);
-//var passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
 var storage = require('./amazons3-connect');
 var homepage = require('./homepage');
-var database = require('./database');
 var app = express();
-//var sanitize = require('validator').sanitize; //Thought I'd use it, but regreted it. May come in handy later, commented untill then
+
+//Database
+var database = require('./database');
+var mongoose = database.mongoose();
+var MongoStore = require('connect-mongo')(express);
+
+//Models
+var Upload = require('./models/upload')(mongoose);
 
 var globals = {
 	limit: process.env.limit || '20',
@@ -39,7 +42,6 @@ app.use(express.session({
 app.use(app.router);
 
 storage.setLimit(parseInt(globals.limit, 10));
-database.connect();
 
 //Hook homepage into express
 //homepage.passport(passport);
@@ -47,7 +49,32 @@ homepage.hook(globals, app);
 
 //Main preview page
 app.get('/get/:uid', function(req, res) {
-	database.getUpload(req.params.uid, function (upload) {
+	Upload.findOne({ uid: req.params.uid }, function (err, upload) {
+		var error;
+		if (err) {
+			error = new Error('Couldn\'t search for token in database.');
+			error.name = "Database error";
+			error.status = 500;
+			error.originalError = err;
+			return next(error);
+		} else if (upload === null) {
+			res.statusCode = 404;
+			res.render('get-error', {
+				title: 'Not found'
+			});
+		} else {
+			res.render('get', {
+				title: 'Get paste',
+				uid: upload.uid,
+				time: timeleft(timediff(upload.expire)),
+				timestamp: timediff(upload.expire),
+				link: upload.url,
+				available: upload.uploaded
+			});
+		}
+	});
+
+	/*database.getUpload(req.params.uid, function (upload) {
 		if (upload === null) {
 			res.statusCode = 404;
 			res.render('get-error', {
@@ -64,12 +91,33 @@ app.get('/get/:uid', function(req, res) {
 				available: upload.uploaded
 			});
 		}
-	});
+	});*/
 });
 
 //Ajax content provider
 app.get('/content/:uid', function (req, res) {
-	database.getUpload(req.params.uid, function (upload) {
+	Upload.findOne({ uid: req.params.uid }, function (err, upload) {
+		var error;
+		if (err) {
+			error = new Error('Couldn\'t search for token in database.');
+			error.name = "Database error";
+			error.status = 500;
+			error.originalError = err;
+			return next(error);
+		} else if (!upload.uploaded) {
+			req.connection.setTimeout(3600000); //1 Hour timeout
+			req.socket.setTimeout(3600000);
+			if (callbacks[upload.uid]) {
+				callbacks[upload.uid].push(function () {
+					ajaxContent(req, res, upload);
+				});
+			}
+		} else {
+			ajaxContent(req, res, upload);
+		}
+	});
+
+	/*database.getUpload(req.params.uid, function (upload) {
 		if (upload === null) {
 			res.statusCode = 404;
 			res.render('get-error', {
@@ -86,14 +134,15 @@ app.get('/content/:uid', function (req, res) {
 		} else {
 			ajaxContent(req, res, upload);
 		}
-	});
+	});*/
 });
 
 function ajaxContent (req, res, upload) {
+	console.log(util.inspect(upload.url));
 	switch (filetype(upload.mimetype)) {
 		case 'image':
 			res.render('content-image', {
-				link: upload.filepath
+				link: upload.url
 			});
 			break;
 		case 'embedd':
@@ -104,19 +153,19 @@ function ajaxContent (req, res, upload) {
 			break;
 		case 'text':
 			res.render('content-text', {
-				link: upload.filepath
+				link: upload.url
 			});
 			break;
 		case 'audio':
 			res.render('content-audio', {
-				link: upload.filepath,
+				link: upload.url,
 				mime: upload.mimetype
 			});
 			break;
 		default:
 			res.render('content-dl', {
-				link: upload.filepath,
-				content: upload.filepath
+				link: upload.url,
+				content: upload.url
 			});
 	}
 }
@@ -133,43 +182,76 @@ app.post('/upload-token', function (req, res, next) {
 			return next(error);
 		}
 
-		uid = uuid.v4();
+		var upload = new Upload({
+			filename: fields.filename,
+			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime)
+		});
+		upload.save(function (err, upload) {
+			if (err) {
+				var error = new Error('Couldn\'t create token in database.');
+				error.name = "Database error";
+				error.status = 500;
+				return next(error);
+			}
 
-		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
-		res.end(JSON.stringify({
-			token: uid,
-			link: globals.host + "/get/" + uid,
-			storage: storage.getS3Policy("uploads/" + uid, fields.filename, fields.mime)
-		}));
-
-		callbacks[uid] = [];
-		/*tokens[guid] = {
-			filepath: '', // URL to file
-			resourcepath: '', // Relative Amazon S3 resource path (same as filepath but relative to http://s3.amazonaws.com/qpaste/...)
-			filename: fields.filename, // Original filename
-			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime), // Mime-type
-			uploaded: false, // Is file uploaded yet?
-			callback: [], // Callbacks for when the upload is complete
-			time: new Date().getTime() // Time when uploaded (epoch)
-		};*/
-		database.newUpload(uid, fields.filename, (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime));
-		//Set timeout for file deletion
-		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
+			callbacks[upload.uid] = [];
+			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+			res.end(JSON.stringify({
+				token: upload.uid,
+				link: globals.host + "/get/" + upload.uid,
+				storage: storage.getS3Policy("uploads/" + upload.uid, fields.filename, fields.mime)
+			}));
+		});
 	});
 });
 
 app.post('/upload-done', function (req, res, next) {
 	var form = new formidable.IncomingForm();
 
-	form.parse(req, function(err, formFields, files) {
-		if (!formFields.token) {
+	form.parse(req, function(err, fields, files) {
+		if (!fields.token) {
 			var error = new Error('Token missing.');
 			error.name = "Token missing";
 			error.status = 400;
 			return next(error);
 		}
 
-		var updateFields = {
+		Upload.findOne({ uid: fields.token }, function (err, upload) {
+			var error;
+			if (err) {
+				error = new Error('Couldn\'t search for token in database.');
+				error.name = "Database error";
+				error.status = 500;
+				error.originalError = err;
+				return next(error);
+			} else if (upload === null) {
+				error = new Error('Couldn\'t find token in database.');
+				error.name = "Database error";
+				error.status = 404;
+				return next(error);
+			}
+
+			upload.resourcepath = s3resourcepath + fields.token;
+			upload.uploaded = true;
+
+			upload.save(function (err, upload) {
+				if (err) {
+					var error = new Error('Couldn\'t edit token in database.');
+					error.name = "Database error";
+					error.status = 500;
+					return next(error);
+				}
+
+				res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+				res.end('');
+
+				for (i = 0; i < callbacks.length; i++) {
+					callbacks[upload.uid][i]();
+				}
+			});
+		});
+
+		/*var updateFields = {
 			filepath: s3path + formFields.token,
 			resourcepath: s3resourcepath + formFields.token,
 			uploaded: true
@@ -178,15 +260,12 @@ app.post('/upload-done', function (req, res, next) {
 		database.updateUpload(formFields.token, updateFields);
 		for (i = 0; i < callbacks.length; i++) {
 			callbacks[formFields.token][i]();
-		}
+		}*/
 
 		//Set timeout for file deletion
 		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
 		globals.statistics.uploads++;
 	});
-
-	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
-	res.end("");
 });
 
 app.post('/user/login', function (req, res, next) {

@@ -9,6 +9,7 @@
         "validator": "",
         "mime": "",
         "mongojs": "",
-        "connect-mongo": ""
+        "connect-mongo": "",
+        "mongoose": ""
     }
 }
