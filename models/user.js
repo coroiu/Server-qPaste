@@ -8,6 +8,7 @@
 		var userSchema = mongoose.Schema({
 			username: String,
 			passwordHash: String,
+			creationDate: {type: date, 'default': new Date()},
 			salt: {type: String, 'default': uuid.v4()}
 		});
 
