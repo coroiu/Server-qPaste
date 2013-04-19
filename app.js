@@ -15,6 +15,7 @@ var MongoStore = require('connect-mongo')(express);
 
 //Models
 var Upload = require('./models/upload')(mongoose);
+var User = require('./models/user')(mongoose);
 
 var globals = {
 	limit: process.env.limit || '20',
@@ -49,19 +50,16 @@ homepage.hook(globals, app);
 
 //Main preview page
 app.get('/get/:uid', function(req, res) {
-	Upload.findOne({ uid: req.params.uid }, function (err, upload) {
-		var error;
+	Upload.getUpload(req.params.uid, function (err, upload) {
 		if (err) {
-			error = new Error('Couldn\'t search for token in database.');
-			error.name = "Database error";
-			error.status = 500;
-			error.originalError = err;
-			return next(error);
-		} else if (upload === null) {
-			res.statusCode = 404;
-			res.render('get-error', {
-				title: 'Not found'
-			});
+			if (err.status == 500)
+				return next(err);
+			else {
+				res.statusCode = 404;
+				res.render('get-error', {
+					title: 'Not found'
+				});
+			}
 		} else {
 			res.render('get', {
 				title: 'Get paste',
@@ -73,25 +71,6 @@ app.get('/get/:uid', function(req, res) {
 			});
 		}
 	});
-
-	/*database.getUpload(req.params.uid, function (upload) {
-		if (upload === null) {
-			res.statusCode = 404;
-			res.render('get-error', {
-				title: 'Not found'
-			});
-		} else {
-			res.render('get', {
-				title: 'Get paste',
-				uid: upload.uid,
-				//time: timeleft(timediff(upload.time)),
-				time: timeleft(timediff(upload.expire)),
-				timestamp: timediff(upload.expire),
-				link: s3path + upload.uid,
-				available: upload.uploaded
-			});
-		}
-	});*/
 });
 
 //Ajax content provider
@@ -116,25 +95,6 @@ app.get('/content/:uid', function (req, res) {
 			ajaxContent(req, res, upload);
 		}
 	});
-
-	/*database.getUpload(req.params.uid, function (upload) {
-		if (upload === null) {
-			res.statusCode = 404;
-			res.render('get-error', {
-				title: 'Not found'
-			});
-		} else if (!upload.uploaded) {
-			req.connection.setTimeout(3600000); //1 Hour timeout
-			req.socket.setTimeout(3600000);
-			if (callbacks[upload.uid]) {
-				callbacks[upload.uid].push(function () {
-					ajaxContent(req, res, upload);
-				});
-			}
-		} else {
-			ajaxContent(req, res, upload);
-		}
-	});*/
 });
 
 function ajaxContent (req, res, upload) {
@@ -216,24 +176,11 @@ app.post('/upload-done', function (req, res, next) {
 			return next(error);
 		}
 
-		Upload.findOne({ uid: fields.token }, function (err, upload) {
-			var error;
-			if (err) {
-				error = new Error('Couldn\'t search for token in database.');
-				error.name = "Database error";
-				error.status = 500;
-				error.originalError = err;
-				return next(error);
-			} else if (upload === null) {
-				error = new Error('Couldn\'t find token in database.');
-				error.name = "Database error";
-				error.status = 404;
-				return next(error);
-			}
+		Upload.getUpload(fields.token, function (err, upload) {
+			if(err) { return next(err); }
 
 			upload.resourcepath = s3resourcepath + fields.token;
 			upload.uploaded = true;
-
 			upload.save(function (err, upload) {
 				if (err) {
 					var error = new Error('Couldn\'t edit token in database.');
@@ -250,47 +197,26 @@ app.post('/upload-done', function (req, res, next) {
 				}
 			});
 		});
-
-		/*var updateFields = {
-			filepath: s3path + formFields.token,
-			resourcepath: s3resourcepath + formFields.token,
-			uploaded: true
-		};
-		
-		database.updateUpload(formFields.token, updateFields);
-		for (i = 0; i < callbacks.length; i++) {
-			callbacks[formFields.token][i]();
-		}*/
-
-		//Set timeout for file deletion
-		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
 		globals.statistics.uploads++;
 	});
 });
 
 app.post('/user/login', function (req, res, next) {
 	var form = new formidable.IncomingForm();
-	form.parse(req, function(err, formFields, files) {
-		if (!formFields.username || !formFields.password) {
+	form.parse(req, function(err, fields, files) {
+		if (!fields.username || !fields.password) {
 			var error = new Error('Fields missing.');
 			error.name = "Fields missing";
 			error.status = 400;
 			return next(error);
 		}
 		
-		database.authenticateUser(formFields.username, formFields.password, function (err, user) {
+		User.authenticateUser(fields.username, fields.password, function (err, user) {
 			if (err) { return next(err); }
-			else if (user === null) {
-				var error = new Error('Wrong username or password.');
-				error.name = "Wrong username or password.";
-				error.status = 401;
-				return next(error);
-			} else {
-				res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
-				res.end(util.inspect(user));
-				req.session.userid = user._id;
-				req.session.save();
-			}
+			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+			res.end(util.inspect(user));
+			req.session.userid = user._id;
+			req.session.save();
 		});
 	});
 });
@@ -311,7 +237,7 @@ app.post('/user/register', function (req, res, next) {
 			return next(error);
 		}
 
-		database.registerUser(formFields.username, formFields.password, function (err) {
+		User.registerUser(formFields.username, formFields.password, function (err) {
 			if (err) { return next(err); }
 			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
 			res.end('');

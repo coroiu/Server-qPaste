@@ -20,6 +20,26 @@
 			return 'http://s3.amazonaws.com/qpaste' + this.resourcepath;
 		});
 
+		uploadSchema.statics.getUpload = function (uid, callback) {
+			Upload.findOne({ uid: uid }, function (err, upload) {
+				var error;
+				if (err) {
+					error = new Error('Couldn\'t search for token in database.');
+					error.name = "Database error";
+					error.status = 500;
+					error.originalError = err;
+					return callback(error);
+				} else if (upload === null) {
+					error = new Error('Couldn\'t find token in database.');
+					error.name = "Not found";
+					error.status = 404;
+					return callback(error);
+				}
+
+				return callback(null, upload);
+			});
+		};
+
 		/*uploadSchema.methods.url = function () {
 			return 'http://s3.amazonaws.com/qpaste/' + this.resourcepath;
 		};*/
