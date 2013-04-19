@@ -5,10 +5,24 @@
 	var uuid = require('node-uuid');
 
 	module.exports = function (mongoose) {
+		var transactionSchema = mongoose.Schema({
+			date: {type: Date, 'default': new Date()},
+			balance: Number,
+			method: {type: String, 'default': 'paypal'}
+		});
+		var Transaction = mongoose.model('Transaction', transactionSchema);
+
+		var walletSchema = mongoose.Schema({
+			balance: {type: Number, 'default': 0},
+			transactions: [Transaction]
+		});
+		var Wallet = mongoose.model('Wallet', walletSchema);
+
 		var userSchema = mongoose.Schema({
 			username: String,
 			passwordHash: String,
-			creationDate: {type: date, 'default': new Date()},
+			creationDate: {type: Date, 'default': new Date()},
+			wallet: {type: Wallet, 'default': new Wallet()},
 			salt: {type: String, 'default': uuid.v4()}
 		});
 
