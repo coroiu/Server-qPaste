@@ -6,6 +6,7 @@
 
 	module.exports = function (mongoose) {
 		var transactionSchema = mongoose.Schema({
+			description: {type: String, 'default': ''},
 			date: {type: Date, 'default': new Date()},
 			balance: Number,
 			method: {type: String, 'default': 'paypal'}
