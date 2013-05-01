@@ -251,10 +251,13 @@ app.get('/user', function (req, res, next) {
 	if (id) {
 		User.getUser(id, function (err, user) {
 			if (err) { return next(err); }
+			user.wallet[0]['_id'] = undefined;
 			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
 			res.end(JSON.stringify({
 				logged_in: true,
-				username: user.username
+				username: user.username,
+				creationDate: user.creationDate,
+				wallet: user.wallet[0]
 			}));
 		});
 	} else {

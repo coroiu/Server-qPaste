@@ -242,6 +242,34 @@ body {
 	margin: auto;
 }
 
+.content-dynamic {
+	padding: 0 30px;
+}
+
+.content-dynamic .fields {
+	margin: 0;
+	padding: 0;
+}
+
+.content-dynamic .fields li {
+	display: block;
+	list-style: none;
+	padding: 10px;
+	margin: 8px 0;
+
+	border-top: 1px solid #eee;
+	border-bottom: 1px solid #eee;
+}
+
+.content-dynamic .fields li img {
+	float: left;
+	margin-right: 20px;
+}
+
+.content-dynamic .fields h2 {
+	
+}
+
 @media (max-width: 767px) { 
 	.jumbotron #default .content {
 		margin-left: 0;

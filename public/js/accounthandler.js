@@ -33,6 +33,15 @@ var account = new (function () {
 		});
 	};
 
+	this.user = function () {
+		return _user;
+	};
+
+	_updateListeners = [];
+	this.onUpdate = function (listener) {
+		_updateListeners.push(listener);
+	};
+
 	logout = function (callback) {
 		$.ajax({
 			url: '/user/logout',
@@ -73,6 +82,11 @@ var account = new (function () {
 		$.ajax({
 			url: "/user"
 		}).done(function ( data ) {
+			_user = data;
+
+			for (var i = 0; i < _updateListeners.length; i++)
+				_updateListeners[i](_user);
+
 			callback(data);
 		});
 	};
