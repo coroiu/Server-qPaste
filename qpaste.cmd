@@ -1,0 +1,2 @@
+START mongodb.cmd
+cmd

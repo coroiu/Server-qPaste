@@ -1,145 +1,138 @@
 var express = require('express');
 var formidable = require('formidable');
 var util = require('util');
-var uuid = require('node-uuid');
 var fs = require('fs');
 var cons = require('consolidate');
 var mime = require('mime');
 var storage = require('./amazons3-connect');
+var homepage = require('./homepage');
 var app = express();
-//var sanitize = require('validator').sanitize; //Thought I'd use it, but regreted it. May come in handy later, commented untill then
 
-var tokens = {};
+//Database
+var database = require('./database');
+var mongoose = database.mongoose();
+var MongoStore = require('connect-mongo')(express);
+
+//Models
+var Upload = require('./models/upload')(mongoose);
+
+var globals = {
+	limit: process.env.limit || '20',
+	host: process.env.host || "http://localhost:1337",
+	statistics: {
+		uploads: 0
+	}
+};
+
+var callbacks = {};
 var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
 var s3resourcepath = "/uploads/";
-var host = process.env.host || "http://localhost:1337";
-var limit = process.env.limit || '20';
 
 /*jslint es5: true */
 app.use(express.static(__dirname + '/public'));
 app.engine('html', cons.hogan);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
+app.use(express.cookieParser());
+app.use(express.session({
+	store: new MongoStore(database.config()),
+	secret: 'imissmycat',
+	cookie: {  path: '/', maxAge: 2629743830 } //1 month
+}));
+app.use(app.router);
 
-storage.setLimit(parseInt(limit, 10));
+storage.setLimit(parseInt(globals.limit, 10));
 
-var metatitle = 'qPaste - Instant Cloud Sharing';
-var description = 'Upload and share any file using the fast and reliable online cloud.\nDownload the desktop client to upload any clipboard data.\nEverything completely free, instantly available.';
-var author = 'Andreas Coroiu';
-
-//Statistics
-var statistics = {
-	uploads: 0
-};
-
-// VIEWS
-app.get('/', function(req, res){
-	res.render('home', {
-		title: 'Home',
-		metatitle: metatitle,
-		description: description,
-		author: author,
-		limit: limit,
-		partials: {
-			footer: 'footer'
-		}
-	});
-});
-
-app.get('/about', function(req, res){
-	res.render('about', {
-		title: 'About',
-		metatitle: metatitle,
-		description: description,
-		author: author,
-		limit: limit,
-		partials: {
-			footer: 'footer'
-		}
-	});
-});
-
-app.get('/statistics', function(req, res) {
-	res.writeHead(200, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-cache' });
-	res.end(util.inspect(statistics));
-});
+//Hook homepage into express
+//homepage.passport(passport);
+homepage.hook(globals, app);
 
 //Main preview page
 app.get('/get/:uid', function(req, res) {
-	var uid = req.params.uid;
-	if (tokens[uid] === undefined || tokens [uid].time === undefined) {
-		res.statusCode = 404;
-		res.render('get-error', {
-			title: 'Not found'
-		});
-	} else {
-		res.render('get', {
-			title: 'Get paste',
-			uid: uid,
-			time: timeleft(timediff(tokens[uid].time)),
-			timestamp: timediff(tokens[uid].time),
-			link: s3path + uid,
-			available: isAvailable(uid)
-		});
-	}
+	Upload.getUpload(req.params.uid, function (err, upload) {
+		if (err) {
+			if (err.status == 500)
+				return next(err);
+			else {
+				res.statusCode = 404;
+				res.render('get-error', {
+					title: 'Not found'
+				});
+			}
+		} else {
+			res.render('get', {
+				title: 'Get paste',
+				uid: upload.uid,
+				time: timeleft(timediff(upload.expire)),
+				timestamp: timediff(upload.expire),
+				link: upload.url,
+				available: upload.uploaded
+			});
+		}
+	});
 });
 
 //Ajax content provider
-app.get('/content/:uid', function(req, res) {
-	var uid = req.params.uid;
-	if (tokens[uid] === undefined || tokens [uid].time === undefined) {
-		res.statusCode = 404;
-		res.render('get-error', {
-			title: 'Not found'
-		});
-	} else if (tokens[uid].filepath === '') {
-		req.connection.setTimeout(3600000); //1 Hour timeout
-		req.socket.setTimeout(3600000);
-		tokens[uid].callback.push(function () {
-			ajaxContent(req, res, uid);
-		});
-	} else {
-		ajaxContent(req, res, uid);
-	}
+app.get('/content/:uid', function (req, res) {
+	Upload.findOne({ uid: req.params.uid }, function (err, upload) {
+		var error;
+		if (err) {
+			error = new Error('Couldn\'t search for token in database.');
+			error.name = "Database error";
+			error.status = 500;
+			error.originalError = err;
+			return next(error);
+		} else if (!upload.uploaded) {
+			req.connection.setTimeout(3600000); //1 Hour timeout
+			req.socket.setTimeout(3600000);
+			if (callbacks[upload.uid]) {
+				callbacks[upload.uid].push(function () {
+					ajaxContent(req, res, upload);
+				});
+			}
+		} else {
+			ajaxContent(req, res, upload);
+		}
+	});
 });
 
-function ajaxContent(req, res, uid) {
-	switch (filetype(tokens[uid].mimetype)) {
+function ajaxContent (req, res, upload) {
+	switch (filetype(upload.mimetype)) {
 		case 'image':
 			res.render('content-image', {
-				link: tokens[uid].filepath
+				link: upload.url
 			});
 			break;
 		case 'embedd':
 			res.render('content-embedd', {
-				link: storage.getSignedS3Url( tokens[uid].resourcepath, 'inline;', Math.round((tokens[uid].time + 3600000)/1000) ),
-				mime: tokens[uid].mimetype
+				link: storage.getSignedS3Url( upload.resourcepath, 'inline;', Math.round((upload.expire.getTime() + 3600000)/1000) ),
+				mime: upload.mimetype
 			});
 			break;
 		case 'text':
 			res.render('content-text', {
-				link: tokens[uid].filepath
+				link: upload.url
 			});
 			break;
 		case 'audio':
 			res.render('content-audio', {
-				link: tokens[uid].filepath,
-				mime: tokens[uid].mimetype
+				link: upload.url,
+				mime: upload.mimetype
 			});
 			break;
 		default:
 			res.render('content-dl', {
-				link: tokens[uid].filepath,
-				content: tokens[uid].filepath
+				link: upload.url,
+				content: upload.url
 			});
 	}
 }
 
 // API
-app.post('/upload-token', function(req, res, next) {
+app.post('/upload-token', function (req, res, next) {
 	var form = new formidable.IncomingForm();
 
-	form.parse(req, function(err, fields, files) {
+	form.parse(req, function (err, fields, files) {
 		if (!fields.filename || !fields.mime) {
 			var error = new Error('Fields missing.');
 			error.name = "Fields missing";
@@ -147,29 +140,30 @@ app.post('/upload-token', function(req, res, next) {
 			return next(error);
 		}
 
-		guid = uuid.v4();
+		var upload = new Upload({
+			filename: fields.filename,
+			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime)
+		});
+		upload.save(function (err, upload) {
+			if (err) {
+				var error = new Error('Couldn\'t create token in database.');
+				error.name = "Database error";
+				error.status = 500;
+				return next(error);
+			}
 
-		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
-		res.end(JSON.stringify({
-			token: guid,
-			link: host + "/get/" + guid,
-			storage: storage.getS3Policy("uploads/" + guid, fields.filename, fields.mime)
-		}));
-		tokens[guid] = {
-			filepath: '', // URL to file
-			resourcepath: '', // Relative Amazon S3 resource path (same as filepath but relative to http://s3.amazonaws.com/qpaste/...)
-			filename: fields.filename, // Original filename
-			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime), // Mime-type
-			uploaded: false, // Is file uploaded yet?
-			callback: [], // Callbacks for when the upload is complete
-			time: new Date().getTime() // Time when uploaded (epoch)
-		};
-		//Set timeout for file deletion
-		//setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
+			callbacks[upload.uid] = [];
+			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+			res.end(JSON.stringify({
+				token: upload.uid,
+				link: globals.host + "/get/" + upload.uid,
+				storage: storage.getS3Policy("uploads/" + upload.uid, fields.filename, fields.mime)
+			}));
+		});
 	});
 });
 
-app.post('/upload-done', function(req, res, next) {
+app.post('/upload-done', function (req, res, next) {
 	var form = new formidable.IncomingForm();
 
 	form.parse(req, function(err, fields, files) {
@@ -180,32 +174,42 @@ app.post('/upload-done', function(req, res, next) {
 			return next(error);
 		}
 
-		tokens[fields.token].filepath = s3path + fields.token;
-		tokens[fields.token].resourcepath = s3resourcepath + fields.token;
-		
-		for (i = 0; i < tokens[fields.token].callback.length; i++) {
-			tokens[fields.token].callback[i]();
-		}
+		Upload.getUpload(fields.token, function (err, upload) {
+			if(err) { return next(err); }
 
-		//Set timeout for file deletion
-		setTimeout(function(){ DeleteFile(tokens[guid]); }, 60*60*1000);
-		statistics.uploads++;
+			upload.resourcepath = s3resourcepath + fields.token;
+			upload.uploaded = true;
+			upload.save(function (err, upload) {
+				if (err) {
+					var error = new Error('Couldn\'t edit token in database.');
+					error.name = "Database error";
+					error.status = 500;
+					return next(error);
+				}
+
+				res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+				res.end('');
+
+				for (i = 0; i < callbacks.length; i++) {
+					callbacks[upload.uid][i]();
+				}
+			});
+		});
+		globals.statistics.uploads++;
 	});
-
-	res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
-	res.end("");
 });
 
 // ERROR HANDLING
 app.use(function(err, req, res, next) {
 	switch (err.status) {
 		case 400:
+		case 401:
 			res.writeHead(err.status, {'Content-type': 'text/plain'});
 			res.end(err.name);
 			break;
 		case 413:
 			res.writeHead(err.status, {'Content-type': 'text/plain'});
-			res.end('File too large. Max filesize is: ' + limit);
+			res.end('File too large. Max filesize is: ' + globals.limit);
 			break;
 		default:
 			res.writeHead(500, {'Content-type': 'text/plain'});
@@ -241,7 +245,7 @@ function isAvailable(token) {
 
 function timediff(time) {
 	now = new Date().getTime();
-	kickoff = time;
+	kickoff = time.getTime();
 	return kickoff - now;
 }
 
@@ -256,7 +260,7 @@ function timeleft(diff) {
 	mm = mins  - hours * 60;
 	ss = secs  - mins  * 60;
 
-	return mm + "m " + ss + "s";
+	return hh + "h " + mm + "m " + ss + "s";
 }
 
 function filetype(mimetype) {

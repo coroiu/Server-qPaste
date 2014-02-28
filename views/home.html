@@ -1,10 +1,11 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>qPaste - {{title}}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="title" content="{{metatitle}}">
-		<meta name="description" content="{{description}}">
-		<meta name="author" content="{{author}}">
+		<meta name="title" content="{{strings.metatitle}}">
+		<meta name="description" content="{{strings.description}}">
+		<meta name="author" content="{{strings.author}}">
 		<meta property="og:image" content="http://qpaste.it/img/upload-128px.png"/>
 
 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -13,22 +14,15 @@
 	<div class="site-overlay"></div>
 	<body>
 		<div class="container">
-			<div class="masthead">
-				<ul class="nav nav-pills pull-right">
-					<li class="active"><a href="/">Home</a></li>
-					<li><a href="/about">About</a></li>
-				</ul>
-				<h3 class="muted">qPaste</h3>
-			</div>
-			<hr>
+			{{> masthead}}
 			<div class="jumbotron">
 				<div class="view" id="default">
 					<div class="icon"></div>
 					<div class="content">
 						<h1>Instant Cloud Sharing</h1>
 						<p class="lead">Upload and share any file using the fast and reliable online cloud.<br>Download the desktop client to upload any clipboard data.<br>Everything completely free, instantly available.</p>
-						<a class="btn btn-large btn-success" href="#" data-bind="click: chooseFile" title="Filesize limit: {{limit}}MB">Upload<small class="hidden-phone"> (or drop file here)</small></a>
-						<a class="btn btn-large" href="http://download.qpaste.it/clients/windows/setup.exe">Download for Windows</a>
+						<a class="btn btn-large btn-success" href="#" data-bind="click: chooseFile" title="Filesize limit: {{globals.limit}}MB">Upload<small class="hidden-phone"> (or drop file here)</small></a>
+						<a class="btn btn-large hidden-phone" href="http://download.qpaste.it/clients/windows/setup.exe">Download for Windows</a>
 						<div class="clearfix"></div>
 					</div>
 				</div>
@@ -79,7 +73,6 @@
 					<p>Download the qPaste client for Windows Desktop. Upload any file you want by copying it (or printscreening) and then pressing <span class="label">Ctrl + Shift + V</span> to instantly paste a link to whatever is in your clipboard. The upload is done in the background. <a href="http://download.qpaste.it/clients/windows/setup.exe">Download &rarr;</a></p>
 				</div>
 			</div>
-			<hr>
 			{{> footer}}
 		</div>
 
@@ -101,8 +94,8 @@
 			<input type="text" value="" name="filename">
 		</form>
 
+		{{> jsimports}}
 		<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="/js/jquery.ui.widget.js"></script>
 		<script src="/js/jquery.fileupload.js"></script>
 		<script type="text/javascript" src="/js/jquery.zclip.min.js"></script>
@@ -134,7 +127,7 @@
 				},
 
 				dragEnter: function (e) {
-					if (!Application.uploading) {
+					if (!Application.uploading && e.dataTransfer.files.length > 0) {
 						Application.browserIgnoreDrag(e);
 						Application.fadeInOverlay('.view#drop');
 					}

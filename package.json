@@ -7,6 +7,9 @@
         "express": "3.x",
         "consolidate": "",
         "validator": "",
-        "mime": ""
+        "mime": "",
+        "mongojs": "",
+        "connect-mongo": "",
+        "mongoose": ""
     }
 }
