@@ -60,14 +60,25 @@ app.get('/get/:uid', function(req, res) {
 				});
 			}
 		} else {
-			res.render('get', {
-				title: 'Get paste',
-				uid: upload.uid,
-				time: timeleft(timediff(upload.expire)),
-				timestamp: timediff(upload.expire),
-				link: upload.url,
-				available: upload.uploaded
-			});
+			renderContent(req, res, upload);
+		}
+	});
+});
+
+//
+app.get('/s/:sid', function(req, res) {
+	Upload.getUploadShort(req.params.sid, function (err, upload) {
+		if (err) {
+			if (err.status == 500)
+				return next(err);
+			else {
+				res.statusCode = 404;
+				res.render('get-error', {
+					title: 'Not found'
+				});
+			}
+		} else {
+			renderContent(req, res, upload);
 		}
 	});
 });
@@ -95,6 +106,18 @@ app.get('/content/:uid', function (req, res) {
 		}
 	});
 });
+
+function renderContent(req, res, upload) {
+	res.render('get', {
+		title: 'Get paste',
+		uid: upload.uid,
+		time: timeleft(timediff(upload.expire)),
+		timestamp: timediff(upload.expire),
+		page: globals.host + "/get/" + upload.uid,
+		link: upload.url,
+		available: upload.uploaded
+	});
+}
 
 function ajaxContent (req, res, upload) {
 	switch (filetype(upload.mimetype)) {
@@ -199,12 +222,55 @@ app.post('/upload-done', function (req, res, next) {
 	});
 });
 
+app.post('/create-short', function (req, res, next) {
+	var form = new formidable.IncomingForm();
+
+	form.parse(req, function(err, fields, files) {
+		if (!fields.token || !fields.sid) {
+			var error = new Error('Fields missing.');
+			error.name = "Fields missing";
+			error.status = 400;
+			return next(error);
+		}
+
+		Upload.existsShort(fields.sid, function(_err, exists) {
+			if(_err) { return next(_err); }
+			if (exists) {
+				var error = new Error('Link already exists');
+				error.name = "Link already exists";
+				error.status = 409;
+				return next(error);
+			}
+
+			Upload.getUpload(fields.token, function (__err, upload) {
+				if(__err) { return next(__err); }
+				upload.sid.push(fields.sid);
+				
+				upload.save(function (___err, upload) {
+					if (___err) {
+						var error = new Error('Couldn\'t edit token in database.');
+						error.name = "Database error";
+						error.status = 500;
+						return next(error);
+					}
+
+					res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+					res.end(JSON.stringify({
+						link: globals.host + "/s/" + fields.sid
+					}));
+				});
+			});
+		});
+	});
+});
+
 // ERROR HANDLING
 app.use(function(err, req, res, next) {
 	switch (err.status) {
 		case 400:
 		case 401:
 		case 404:
+		case 409:
 			res.writeHead(err.status, {'Content-type': 'text/plain'});
 			res.end(err.name);
 			break;

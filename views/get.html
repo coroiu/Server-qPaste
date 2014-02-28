@@ -27,10 +27,21 @@
 				<a class="brand" href="/">qPaste</a>
 				<div class="time">Available for another <span id="countdown">{{time}}</span></div>
 				<div class="nav-collapse collapse sidemenu">
-					<ul class="nav" id="saveas" style="display: none;">
-						<li><a href="{{link}}">Save As</a></li>
+					<ul class="nav" id="options">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								Menu
+								<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="#shortLinkModal" role="button" id="linkcreate" data-toggle="modal">Generate short link</a></li>
+								<li><a href="#qrModal" role="button" id="qrcreate" data-toggle="modal">Generate QR code</a></li>
+								<li class="divider"></li>
+								<li id="saveas" style="display:none"><a href="{{link}}">Save as</a></li>
+							</ul>
+						</li>
 					</ul>
-				</div><!--/.nav-collapse -->
+				</div>
 			</div>
 		</div>
 	</div>
@@ -112,7 +123,44 @@
 		} else {
 			$.jStorage.set('alert', 'false');
 		}
+
+		$("#shortcreate").submit(function(event) {
+			//wanted this, but doesn't work in IE
+		});
 	});
+
+	function createShort() {
+		$('#shortLinkModal .alert-error').hide();
+		$('#shortLinkModal form').children().each(function(index, element) {
+			$(element).attr("disabled", "disabled");
+		});
+
+		$.ajax({
+			type: 'POST',
+			url: '/create-short',
+			data: {
+				token: "{{uid}}",
+				sid: $('#shortLinkModal input[type="text"]').val()
+			}
+		}).done(function(data) {
+			var lDiv = $('#shortLinkModal #short-link');
+			$(lDiv).attr("href", data.link);
+			$(lDiv).text(data.link);
+			$(lDiv).show();
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			$('#shortLinkModal #error').text(" " + jqXHR.responseText);
+			$('#shortLinkModal .alert-error').show();
+		}).always(function() {
+			$('#shortLinkModal form').children().each(function(index, element) {
+				$(element).removeAttr("disabled");
+			});
+		});
+
+		event.cancelBubble = true;
+		event.returnValue = false;
+		event.preventDefault();
+		return false;
+	}
 
 	function loadContent(alert) {
 		$.get('/content/' + uid, function(data) {
@@ -146,5 +194,41 @@
 		return hh + "h " + mm + "m " + ss + "s";
 	}
 	</script>
+
+	<div id="shortLinkModal" class="modal hide fade">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h3>Generate short link</h3>
+		</div>
+		<div class="modal-body">
+			<p>
+				Choose short handle<br>
+				<div class="alert alert-error" style="display: none"><strong>Error</strong><span id="error"></span></div>
+			</p>
+			<form class="form-inline" id="shortcreate" onsubmit="createShort(); return false;">
+				<input type="text" placeholder="">
+				<button type="submit" class="btn">Create</button>
+				<div class="big-link">
+					<a id="short-link" href="#" style="display:none"></a>
+				</div>
+			</form>
+		</div>
+		<div class="modal-footer">
+			<a href="#" data-dismiss="modal" class="btn">Close</a>
+		</div>
+	</div>
+
+	<div id="qrModal" class="modal hide fade">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h3>Generate QR code</h3>
+		</div>
+		<div class="modal-body">
+			<img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{page}}">
+		</div>
+		<div class="modal-footer">
+			<a href="#" data-dismiss="modal" class="btn">Close</a>
+		</div>
+	</div>
 </body>
 </html>

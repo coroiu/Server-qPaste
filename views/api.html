@@ -103,6 +103,38 @@
 							<li><span class="code">404</span>Server could not find this token. See <a href="#/upload-token"><code>POST /upload-token</code></a> for how to create.</li>
 							<li><span class="code">500</span>Internal server error, se message.</li>
 						</ul>
+
+						<h3 id="/create-short">POST /create-short<span class="return">json</span></h3>
+						<h4>Paramters</h4>
+						<ul class="params">
+							<li>
+								<span class="param">token</span><br>
+								Token for the file that you want to create a short handle for.
+							</li>
+							<li>
+								<span class="param">sid</span><br>
+								Handle to link this file to.
+							</li>
+						</ul>
+
+						<h4>Success</h4>
+						<p>
+							You can now access this file using the short .../s/[sid] method. Way easier to share!
+						</p>
+						<h5>Response example</h5>
+<pre>{
+    "link": "http://localhost:1337/s/banan"
+}</pre>
+						<h4>Fail</h4>
+						<p>
+							<b>Fails do not return json!</b><br>
+							If unsuccessfull you will get an HTTP error. Following errors can occur:
+						</p>
+						<ul class="error-list">
+							<li><span class="code">400</span>Missing parameters.</li>
+							<li><span class="code">409</span>Link already exists.</li>
+							<li><span class="code">500</span>Internal server error, se message.</li>
+						</ul>
 					</div>
 
 					<h2>Upload method flow</h2>

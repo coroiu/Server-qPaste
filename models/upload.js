@@ -8,7 +8,8 @@
 		expire.setDate(new Date().getDate() + 1);
 
 		var uploadSchema = mongoose.Schema({
-			uid: {type: String, 'default': function() {return uuid.v4();} }, // URL to file
+			uid: {type: String, 'default': function() {return uuid.v4();} },
+			sid: [String], // Short ids
 			resourcepath: String, // Relative Amazon S3 resource path (same as filepath but relative to http://s3.amazonaws.com/qpaste/...)
 			filename: String, // Original filename
 			mimetype: String, // Mime-type
@@ -41,6 +42,43 @@
 				}
 
 				return callback(null, upload);
+			});
+		};
+
+		uploadSchema.statics.getUploadShort = function (sid, callback) {
+			Upload.findOne({ sid: sid }, function (err, upload) {
+				var error;
+				if (err) {
+					error = new Error('Couldn\'t search for token in database.');
+					error.name = "Database error";
+					error.status = 500;
+					error.originalError = err;
+					return callback(error);
+				} else if (upload === null) {
+					error = new Error('Couldn\'t find token in database.');
+					error.name = "Not found";
+					error.status = 404;
+					return callback(error);
+				}
+
+				return callback(null, upload);
+			});
+		};
+
+		uploadSchema.statics.existsShort = function (sid, callback) {
+			Upload.findOne({ sid: sid }, function (err, upload) {
+				var error;
+				if (err) {
+					error = new Error('Couldn\'t search for token in database.');
+					error.name = "Database error";
+					error.status = 500;
+					error.originalError = err;
+					return callback(error);
+				} else if (upload === null) {
+					return callback(null, false);
+				}
+
+				return callback(null, true);
 			});
 		};
 
