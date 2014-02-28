@@ -4,7 +4,7 @@
 			<img src="/img/albumart.jpg">
 			<canvas id="fft"></canvas>
 		</div>
-		<audio id="audio" controls="controls" style="display:none;">
+		<audio id="audio" controls="controls">
 			<source src="{{link}}" type="{{mime}}" />
 		</audio>
 	</div>
@@ -41,8 +41,6 @@
 			return false;
 		});
 		window.dancer = dancer;
-
-		$('#audio').show();
 	});
 	$('#saveas').show();
 </script>
