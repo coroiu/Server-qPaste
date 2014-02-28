@@ -42,10 +42,10 @@
 			});
 		});
 
-		app.get('/account', function(req, res){
-			res.render('account', {
-				title: 'Account Management',
-				account: true,
+		app.get('/api', function(req, res) {
+			res.render('api', {
+				title: 'API Documentation',
+				api: true,
 				strings: strings,
 				globals: globals,
 				partials: {

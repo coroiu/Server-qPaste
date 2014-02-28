@@ -5,6 +5,8 @@ body {
 
 /* Default bootstrap
  * For some reason this is lost and inputs look wierd
+ * 
+ * FIXED, forgot html5 doctype
  */
 /*input[type="text"], input[type="password"] {
 	padding: 14px 4px;
@@ -231,6 +233,97 @@ body {
 	width: 64px;
 	margin: auto;
 }
+
+.api-doc {
+	padding: 0 10px;
+}
+
+.api-doc h3 .return:before {
+	content: " : ";
+}
+
+.api-doc h3 .return {
+	color: gray;
+}
+
+.params li {
+	margin-bottom: 20px;
+}
+
+.api-doc .error-list {
+	list-style: none;
+}
+
+.api-doc .error-list li {
+	margin-bottom: 10px;
+}
+
+.api-doc .error-list .code {
+	font-weight: bold;
+}
+
+.api-doc .error-list .code:after {
+	content: ": ";
+}
+
+.flow {
+	/*text-align: center;*/
+}
+
+/* ARROWS */
+.arrow-n,
+.arrow-e,
+.arrow-s,
+.arrow-w {
+  /*
+   * In Internet Explorer, The"border-style: dashed" will never be
+   * rendered unless "(width * 5) >= border-width" is true.
+   * Since "width" is set to "0", the "dashed-border" remains
+   * invisible to the user, which renders the border just like how
+   * "border-color: transparent" renders.
+   */
+  border-style: dashed;
+  border-color: transparent;
+  border-width: 0.53em;
+  display: -moz-inline-box;
+  display: inline-block;
+  /* Use font-size to control the size of the arrow. */
+  font-size: 25px;
+  height: 0;
+  line-height: 0;
+  position: relative;
+  vertical-align: middle;
+  width: 0;
+}
+
+.arrow-n {
+  border-bottom-width: 1em;
+  border-bottom-style: solid;
+  border-bottom-color: #666;
+  bottom: 0.25em;
+}
+
+.arrow-e {
+  border-left-width: 1em;
+  border-left-style: solid;
+  border-left-color: #666;
+  left: 0.25em;
+}
+                    
+.arrow-s {
+  border-top-width: 1em;
+  border-top-style: solid;
+  border-top-color: #666;
+  top: 0.25em;
+}
+
+.arrow-w {
+  border-right-width: 1em;
+  border-right-style: solid;
+  border-right-color: #666;
+  right: 0.25em;
+}
+
 
 @media (max-width: 767px) { 
 	.jumbotron #default .content {

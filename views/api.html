@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>qPaste - {{title}}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="title" content="{{strings.metatitle}}">
+		<meta name="description" content="{{strings.description}}">
+		<meta name="author" content="{{strings.author}}">
+		<meta property="og:image" content="http://qpaste.it/img/upload-128px.png"/>
+
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link href="/css/home-stylesheet.css" rel="stylesheet">
+	</head>
+	<div class="site-overlay"></div>
+	<body>
+		<div class="container">
+			{{> masthead}}
+			<div class="row">
+				<div class="span12">
+					<h1>API Documentation</h1>
+					<p class="lead">
+						Want to extend qPaste to other platforms and/or applications? Then you need an API!
+					</p>
+					<p>
+						The good thing about qPaste is that it is simple. I mean like, <em>very simple</em>.<br>
+						The following methods are available. For the order of doing things, scroll down.
+					</p>
+					<h2>Methods</h2>
+					<p>
+						All API communication is done over HTTP (and unfortunately not HTTPS, you may use HTTPS uploading to S3 however).
+					</p>
+					<div class="api-doc">
+						<h3 id="/upload-token">POST /upload-token<span class="return">json</span></h3>
+						<h4>Paramters</h4>
+						<ul class="params">
+							<li>
+								<span class="param">filename</span><br>
+								Name of the file that you want to upload.
+							</li>
+							<li>
+								<span class="param">mimetype</span><br>
+								Mimetype of the file that you want to upload. For a full list see of supported mimetypes see <code>function filetype(mimetype)</code> in <em>app.js</em>.<br>
+								If you are unsure or some other reason cannot determine the type correctly, use <code>application/octet-stream</code> and the server will try to detect it for you. (Note: This is currently done through extension).
+							</li>
+						</ul>
+
+						<h4>Success</h4>
+						<p>
+							If successfull you will now have a link to the page where the file you are uploading will be made available.<br>
+							Don't hesitate use this link, for example give it to the user, because the page will auto-update when you confirm the upload (see <a href="#/upload-done"><code>POST /upload-done</code></a>).
+						</p>
+						<h5>Response example</h5>
+<pre>{
+    "token": "dd071c52-dec1-4a21-a193-c1250f20cba3",
+    "link": "http://localhost:1337/get/dd071c52-dec1-4a21-a193-c1250f20cba3",
+    "storage": {
+        "s3PolicyBase64": "eyJleHBpcmF0aW9uIjoiMjAxNC0yLTI4VDIwOjQwOjE1WiIsImNvbmRpdGlvbnMiOlt7IkNvbnRlbnQtdHlwZSI6ImFwcGxpY2F0aW9uL3BkZiJ9LHsia2V5IjoidXBsb2Fkcy9kZDA3MWM1Mi1kZWMxLTRhMjEtYTE5My1jMTI1MGYyMGNiYTMifSx7ImJ1Y2tldCI6InFwYXN0ZSJ9LHsiYWNsIjoicHVibGljLXJlYWQifSx7IkNvbnRlbnQtRGlzcG9zaXRpb24iOiJhdHRhY2htZW50OyBmaWxlbmFtZT3jgZPjgpPjgavjgaHjga8ucGRmIn0sWyJjb250ZW50LWxlbmd0aC1yYW5nZSIsMCwyMDk3MTUyMF1dfQ==",
+        "s3Signature": "x8HRwMTtRLVKABE6Tdi19bZuzGU=",
+        "s3Key": "AKIAJIQMLGZF5DOO574A",
+        "s3Policy": {
+            "expiration": "2014-2-28T20:40:15Z",
+            "conditions": {
+                "key": "uploads/dd071c52-dec1-4a21-a193-c1250f20cba3",
+                "bucket": "qpaste",
+                "acl": "public-read",
+                "mime": "application/pdf",
+                "disposition": "attachment; filename=こんにちは.pdf"
+            }
+        }
+    }
+}</pre>
+						<h4>Fail</h4>
+						<p>
+							<b>Fails do not return json!</b><br>
+							If unsuccessfull you will get an HTTP error. Following errors can occur:
+						</p>
+						<ul class="error-list">
+							<li><span class="code">400</span>Missing parameters.</li>
+							<li><span class="code">500</span>Internal server error, se message.</li>
+						</ul>
+
+						<h3 id="/upload-done">POST /upload-done<span class="return">empty</span></h3>
+						<h4>Parameters</h4>
+						<ul class="params">
+							<li>
+								<span class="param">token</span><br>
+								Token of the file that has been successfully uploaded.
+							</li>
+						</ul>
+
+						<h4>Success</h4>
+						<p>
+							The file bound to this token has been marked as <em>uploaded</em> and all users waiting for this file will be announced.<br>
+						</p>
+
+						<h4>Fail</h4>
+						<p>
+							<b>Fails do not return json!</b><br>
+							If unsuccessfull you will get an HTTP error. Following errors can occur:
+						</p>
+						<ul class="error-list">
+							<li><span class="code">400</span>Missing parameters.</li>
+							<li><span class="code">404</span>Server could not find this token. See <a href="#/upload-token"><code>POST /upload-token</code></a> for how to create.</li>
+							<li><span class="code">500</span>Internal server error, se message.</li>
+						</ul>
+					</div>
+
+					<h2>Upload method flow</h2>
+					<p>
+						Although you can get a good idea of how the proceedure is done by looking at the methods above, the Amazon S3 upload part is not itself documented. This is because applications don't actually upload to qPaste but rather directly to the S3 storage. 
+						For more information about uploading to S3 see <a href="https://S3.amazon.com/articles/1434" target="_blank">Browser Uploads to S3 using HTML POST Forms</a>
+					</p>
+
+					<h3>Procedure</h3>
+					<div class="flow">
+						<p>
+							It's not harder than this: <a href="#/upload-token"><code>POST /upload-token</code></a> <span class="arrow-e"></span> S3 upload <span class="arrow-e"></span> <a href="#/upload-done"><code>POST /upload-done</code></a><br>
+							Please note that if you skip the last step the end users will not be able to view your file.
+						</p>
+					</div>
+
+					<h3>S3 Post Uploads</h3>
+					<p>
+						This is actually the thing that I had to fiddle with most. It can be a bit hard to understand exactly what needs to be encrypted and what needs to be sent as a header. Thankfully, the client does nothing but <b>forwards</b> what it receives from <a href="#/upload-token"><code>POST /upload-token</code></a>.
+					</p>
+
+					<h4>Browser uploads</h4>
+					<p>
+						The easiest way to upload to S3 is by letting a browser to the hard work. All you have to do is get the correct paramaters from the <a href="#/upload-token"><code>POST /upload-token</code></a> call, set them as POST parameters and finally send them to <code>http(s)://[BUCKET].s3.amazonS3.com/</code> (the bucket is the same as below).
+					</p>
+					<h5>Parameters</h5>
+					<ul class="params">
+						<li>
+							<span class="param">Policy</span><br>
+							Corresponds to <code>storage.s3PolicyBase64</code>.
+						</li>
+						<li>
+							<span class="param">S3AccessKeyId</span><br>
+							Corresponds to <code>storage.s3Key</code>.
+						</li>
+						<li>
+							<span class="param">Signature</span><br>
+							Corresponds to <code>storage.s3Signature</code>.
+						</li>
+						<li>
+							<span class="param">Key</span><br>
+							Corresponds to <code>storage.s3Policy.conditions.key</code>.
+						</li>
+						<li>
+							<span class="param">Bucket</span><br>
+							Corresponds to <code>storage.s3Policy.conditions.bucket</code>.
+						</li>
+						<li>
+							<span class="param">acl</span><br>
+							Corresponds to <code>storage.s3Policy.conditions.acl</code>.
+						</li>
+						<li>
+							<span class="param">Content-Type</span><br>
+							Corresponds to <code>storage.s3Policy.conditions.mime</code>.
+						</li>
+						<li>
+							<span class="param">Content-Disposition</span><br>
+							Corresponds to <code>storage.s3Policy.conditions.disposition</code>.
+						</li>
+					</ul>
+
+					<h4>Standalone application uploads</h4>
+					<p>
+						This <em>can</em> be a bit tricky, depending on the language you are coding in. It's a pretty common task to POST upload a file however, so I wouldn't be too worried about it.
+						Just remember, Amazon S3 wants <code>multipart/form-data</code>!
+					</p>
+					<h5>Example request</h5>
+					<p>
+						This is what Chrome sends to S3 when uploading. All parameters have first been collected by calling <a href="#/upload-token"><code>POST /upload-token</code></a> (the example response is exactly what it received before it sent the following: ).
+					</p>
+<pre>
+Request URL:http://qpaste.s3.amazonS3.com/
+Request Method:POST
+Status Code:204 No Content
+Request Headersview source
+Accept:*/*
+Accept-Encoding:gzip,deflate,sdch
+Accept-Language:sv-SE,sv;q=0.8,en-US;q=0.6,en;q=0.4
+Connection:keep-alive
+Content-Length:238092
+Content-Type:multipart/form-data; boundary=----WebKitFormBoundaryDOywaeddHhdARkGq
+Host:qpaste.s3.amazonS3.com
+Origin:http://localhost:1337
+Referer:http://localhost:1337/
+User-Agent:Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.117 Safari/537.36
+Request Payload
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="key"
+
+uploads/dd071c52-dec1-4a21-a193-c1250f20cba3
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="S3AccessKeyId"
+
+AKIAJIQMLGZF5DOO574A
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="Policy"
+
+eyJleHBpcmF0aW9uIjoiMjAxNC0yLTI4VDIwOjQwOjE1WiIsImNvbmRpdGlvbnMiOlt7IkNvbnRlbnQtdHlwZSI6ImFwcGxpY2F0aW9uL3BkZiJ9LHsia2V5IjoidXBsb2Fkcy9kZDA3MWM1Mi1kZWMxLTRhMjEtYTE5My1jMTI1MGYyMGNiYTMifSx7ImJ1Y2tldCI6InFwYXN0ZSJ9LHsiYWNsIjoicHVibGljLXJlYWQifSx7IkNvbnRlbnQtRGlzcG9zaXRpb24iOiJhdHRhY2htZW50OyBmaWxlbmFtZT3jgZPjgpPjgavjgaHjga8ucGRmIn0sWyJjb250ZW50LWxlbmd0aC1yYW5nZSIsMCwyMDk3MTUyMF1dfQ==
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="Signature"
+
+x8HRwMTtRLVKABE6Tdi19bZuzGU=
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="Bucket"
+
+qpaste
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="acl"
+
+public-read
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="Content-Type"
+
+application/pdf
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="Content-Disposition"
+
+attachment; filename=こんにちは.pdf
+------WebKitFormBoundaryDOywaeddHhdARkGq
+Content-Disposition: form-data; name="file"; filename="こんにちは.pdf"
+Content-Type: application/pdf
+
+...
+
+------WebKitFormBoundaryDOywaeddHhdARkGq--
+</pre>
+				</div>
+			</div>
+			{{> footer}}
+		</div>
+		{{> jsimports}}
+	</body>
+</html>

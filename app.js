@@ -204,6 +204,7 @@ app.use(function(err, req, res, next) {
 	switch (err.status) {
 		case 400:
 		case 401:
+		case 404:
 			res.writeHead(err.status, {'Content-type': 'text/plain'});
 			res.end(err.name);
 			break;
