@@ -138,7 +138,6 @@ app.get('/content/:uid', function (req, res) {
 });
 
 function ajaxContent (req, res, upload) {
-	console.log(util.inspect(upload.url));
 	switch (filetype(upload.mimetype)) {
 		case 'image':
 			res.render('content-image', {
@@ -147,7 +146,7 @@ function ajaxContent (req, res, upload) {
 			break;
 		case 'embedd':
 			res.render('content-embedd', {
-				link: storage.getSignedS3Url( upload.resourcepath, 'inline;', Math.round((upload.time + 3600000)/1000) ),
+				link: storage.getSignedS3Url( upload.resourcepath, 'inline;', Math.round((upload.expire.getTime() + 3600000)/1000) ),
 				mime: upload.mimetype
 			});
 			break;
