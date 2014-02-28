@@ -20,7 +20,7 @@
 		var mongo;
 		if (process.env.VCAP_SERVICES) {
 			var env = JSON.parse(process.env.VCAP_SERVICES);
-			mongo = env['mongodb-1.8'][0]['credentials'];
+			mongo = env['mongodb2-2.4.8'][0]['credentials'];
 		} else {
 			mongo = {
 				"hostname": "localhost",
