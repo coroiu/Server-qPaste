@@ -12,6 +12,14 @@ Commercial
 Any type of commercial use of ANY code in this repository is strictly forbidden.
 There is at the time being not any kind of licensing agreement.
 
+Please not that the following exceptions apply:
+### Free to use #######
+
+	- All front-end code is free to use. This means the following:
+		- All files inside ./views
+		- All files inside ./public
+	- amazons3-connect.js *took me a long time to figure that out, but has nothing to do with this service! You're welcome!*
+
 Contributions
 --------------
 
