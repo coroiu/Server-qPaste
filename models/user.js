@@ -9,7 +9,7 @@
 			description: {type: String, 'default': ''},
 			date: {type: Date, 'default': new Date()},
 			balance: Number,
-			method: {type: String, 'default': 'paypal'}
+			method: {type: String, 'default': 'debug'}
 		});
 		var Transaction = mongoose.model('Transaction', transactionSchema);
 
@@ -17,6 +17,13 @@
 			balance: {type: Number, 'default': 0},
 			transactions: {type: [transactionSchema], 'default':[]}
 		});
+
+		walletSchema.methods.perfomTransaction = function(transaction) {
+			this.balance += transaction.balance;
+			this.transactions.push(transaction);
+			this.save();
+		};
+
 		var Wallet = mongoose.model('Wallet', walletSchema);
 
 		var userSchema = mongoose.Schema({

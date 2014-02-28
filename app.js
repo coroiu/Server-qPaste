@@ -268,8 +268,35 @@ app.get('/user', function (req, res, next) {
 	}
 });
 
+// DEBUG API
+app.get('/user/add10', authorization, function (req, res, next) {
+	var id = req.session.userid;
+	User.getUser(id, function (err, user) {
+		if (err) { return next(err); }
+		user.wallet[0].perfomTransaction({
+			description: 'Cheating the world, illegaly.',
+			balance: 10
+		});
+		res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+		res.end('Balance: ' + user.wallet[0].balance);
+	});
+});
+
+function authorization(req, res, next) {
+	var id = req.session.userid;
+	if (id) {
+		return next();
+	} else {
+		var err = new Error('You are trying to perform an action that requires you to be logged in.');
+		err.name = "Authorization error";
+		err.status = 401;
+		handleError(err, req, res, next);
+		return false;
+	}
+}
+
 // ERROR HANDLING
-app.use(function(err, req, res, next) {
+function handleError(err, req, res, next) {
 	switch (err.status) {
 		case 400:
 		case 401:
@@ -285,7 +312,8 @@ app.use(function(err, req, res, next) {
 			res.write('Unknown error occurred: \n\n');
 			res.end(util.inspect(err));
 	}
-});
+}
+app.use(function(err, req, res, next) { handleError(err, req, res, next); });
 
 function DeleteFile(token) {
 	//Amazon S3 delete not implemented
