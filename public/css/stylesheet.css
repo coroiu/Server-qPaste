@@ -142,6 +142,15 @@ input[type="checkbox"] {
   margin: -1px 0 0 0;
 }
 
+.full-size {
+  position: fixed;
+  top: 40px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow: hidden;
+}
+
 @media (max-width: 979px) {
   .navbar-fixed-top {
     position: relative !important;
@@ -183,16 +192,9 @@ input[type="checkbox"] {
     left: 0;
   }
 
-  .full-size {
-    /* Doesn't work on WindowsPhone
-  position: fixed;
-  top: 40px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  overflow: hidden;*/
-
+  .text-viewer {
     margin: -20px -20px 0 -20px;
+    width: auto;
   }
 }
 
