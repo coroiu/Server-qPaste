@@ -19,6 +19,17 @@ body {
 	font-size: 12px;
 }
 
+.dropdown-menu li.danger>a:hover, .dropdown-menu li.danger>a:focus {
+  background: #cc0003;
+  background: -moz-linear-gradient(top, #cc0003 0%, #a30002 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cc0003), color-stop(100%,#a30002));
+  background: -webkit-linear-gradient(top, #cc0003 0%,#a30002 100%);
+  background: -o-linear-gradient(top, #cc0003 0%,#a30002 100%);
+  background: -ms-linear-gradient(top, #cc0003 0%,#a30002 100%);
+  background: linear-gradient(to bottom, #cc0003 0%,#a30002 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cc0003', endColorstr='#a30002',GradientType=0 );
+}
+
 .top-push {
   height: 40px;
 }

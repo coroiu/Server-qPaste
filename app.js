@@ -65,7 +65,7 @@ app.get('/get/:uid', function(req, res) {
 	});
 });
 
-//
+//Short Handle creator
 app.get('/s/:sid', function(req, res) {
 	Upload.getUploadShort(req.params.sid, function (err, upload) {
 		if (err) {
@@ -79,6 +79,24 @@ app.get('/s/:sid', function(req, res) {
 			}
 		} else {
 			renderContent(req, res, upload);
+		}
+	});
+});
+
+//Delete file
+app.get('/delete/:sid', function(req, res) {
+	Upload.getUpload(req.params.sid, function (err, upload) {
+		if (err) {
+			if (err.status == 500)
+				return next(err);
+			else {
+				res.statusCode = 404;
+				res.render('get-error', {
+					title: 'Not found'
+				});
+			}
+		} else {
+			//Delete file
 		}
 	});
 });
@@ -115,7 +133,8 @@ function renderContent(req, res, upload) {
 		timestamp: timediff(upload.expire),
 		page: globals.host + "/get/" + upload.uid,
 		link: upload.url,
-		available: upload.uploaded
+		available: upload.uploaded,
+		owner: (req.sessionID == upload.owner)
 	});
 }
 
@@ -162,10 +181,10 @@ app.post('/upload-token', function (req, res, next) {
 			error.status = 400;
 			return next(error);
 		}
-
 		var upload = new Upload({
 			filename: fields.filename,
-			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime)
+			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime),
+			owner: req.sessionID
 		});
 		upload.save(function (err, upload) {
 			if (err) {
