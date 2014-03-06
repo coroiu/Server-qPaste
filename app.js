@@ -91,12 +91,14 @@ app.get('/delete/:sid', function(req, res) {
 				return next(err);
 			else {
 				res.statusCode = 404;
-				res.render('get-error', {
-					title: 'Not found'
-				});
+				res.end("Couldn't find file.");
 			}
 		} else {
-			//Delete file
+			storage.deleteFile(req.params.sid, function(statusCode) {
+				//res.end(response);
+			});
+			upload.remove();
+			res.end();
 		}
 	});
 });

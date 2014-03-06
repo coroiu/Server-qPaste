@@ -4,6 +4,7 @@
 // All code in this file (amazons3-connect.js) is free to be used by anyone, even for commercial purposes.
 
 (function() {
+	var http = require('http');
 	var crypto = require("crypto");
 	var credentials = require("./s3credentials");
 	var accessKey = credentials.accessKey;
@@ -13,6 +14,25 @@
 
 	module.exports.setLimit = function (newLimit) {
 		limit = newLimit;
+	};
+
+	// Deletes file
+	// Example: deleteFile('393e4990-620d-4322-bb28-e357bcfc5caf', function(statusCode) {...});
+	module.exports.deleteFile = function (uid, callback) {
+		var options = {
+			host: 'qpaste.s3.amazonaws.com',
+			port: 80,
+			path: '/uploads/' + uid,
+			method: 'DELETE'
+		};
+
+		var req = http.get(options, function(res) {
+			var pageData = "";
+			res.setEncoding('utf8');
+			res.on('end', function(){
+				callback(res.statusCode);
+			});
+		});
 	};
 
 	// Used for POST uploading

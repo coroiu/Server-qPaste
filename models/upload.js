@@ -26,6 +26,12 @@
 			return 'http://s3.amazonaws.com/qpaste' + this.resourcepath;
 		});
 
+		uploadSchema.methods.remove = function () {
+			Upload.remove({ _id: this._id }, function (err) {
+				if (err) return err;
+			});
+		};
+
 		uploadSchema.statics.getUpload = function (uid, callback) {
 			Upload.findOne({ uid: uid }, function (err, upload) {
 				var error;
