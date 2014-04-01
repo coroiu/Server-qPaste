@@ -15,11 +15,12 @@
 			mimetype: String, // Mime-type
 			uploaded: {type: Boolean, 'default': false}, // Is file uploaded yet?
 			owner: String,
+			createdAt: { type: Date, expires: '24h' },
 			expire: {type: Date, 'default': function() {
 				var expire = new Date();
 				expire.setDate(new Date().getDate() + 1);
 				return expire;
-			}} // Datetime for expiration (auto delete from database)
+			}} // Datetime for expiration (used for displaying time left)
 		});
 
 		uploadSchema.virtual('url').get(function () {
