@@ -155,13 +155,20 @@ function ajaxContent (req, res, upload) {
 			break;
 		case 'text':
 			res.render('content-text', {
-				link: upload.url
+				link: upload.url,
+				runnable: false
 			});
 			break;
 		case 'audio':
 			res.render('content-audio', {
 				link: upload.url,
 				mime: upload.mimetype
+			});
+			break;
+		case 'runnable':
+			res.render('content-text', {
+				link: upload.url,
+				runnable: true
 			});
 			break;
 		default:
@@ -367,7 +374,6 @@ function filetype(mimetype) {
 		case 'application/ecmascript':
 		case 'text/javascript':
 		case 'text/ecmascript':
-		case 'text/html':
 		case 'text/css':
 		case 'text/x-asm':
 		case 'text/asp':
@@ -385,6 +391,8 @@ function filetype(mimetype) {
 		case 'text/x-csharp':
 		case 'text/plain':
 			return 'text';
+		case 'text/html':
+			return 'runnable';
 		case 'audio/mp3':
 		case 'audio/mpeg':
 		case 'audio/ogg':

@@ -12,6 +12,7 @@
 	</style>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+	<link href="/css/bootstrap-switch.min.css" rel="stylesheet">
 	<link href="/css/stylesheet.css" rel="stylesheet">
 </head>
 <body>
@@ -49,6 +50,19 @@
 		</div>
 	</div>
 	<div class="top-push"></div>
+	<div class="navbar navbar-static-top" id="submenu" style="display:none">
+		<div class="navbar-inner">
+			<div class="container">
+				<span class="text">In-browser executable options</span>
+				<ul class="live-options">
+					<li>
+						<span class="label">Live mode</span>
+						<input type="checkbox" class="switch switch-mini" id="live-mode-switch" name="live-mode">
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
 	<div class="" id="content" style="display: none;">
 		<div class="container" id="content">
 			<div class="row">
@@ -61,6 +75,7 @@
 			</div>
 		</div>
 	</div>
+	<div class="full-size with-submenu" id="live-content" style="display: none;"></div>
 	<div class="container" id="wait-content" style="display: none;">
 		<div class="row">
 			<div class="span8 offset2 wait">
@@ -81,6 +96,7 @@
 	</div>
 	<script src="/js/jquery-1.9.1.min.js"></script>
 	<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+	<script src="/js/bootstrap-switch.min.js"></script>
 	<script src="/js/jstorage.js"></script>
 	<!--<script src="/js/viewport-fix.js"></script> Didn't really make anything better on WP-->
 	<script type="text/javascript">
@@ -99,6 +115,7 @@
 	var available = {{available}};
 	var uid = '{{uid}}';
 	var sound = new Audio('');
+	var contentData;
 
 	jQuery(function($){
 		if (available) {
@@ -111,6 +128,23 @@
 			loadContent(true);
 		}
 
+		$(".switch").bootstrapSwitch();
+
+		$('#live-mode-switch').on('switch-change', function (e, data) {
+			if (data.value) {
+				//ON
+				$("#content").hide();
+				$("#live-content").html('<iframe id="live-iframe" class="embedded"></iframe>');
+				$("#live-iframe")[0].contentWindow.document.write(contentData);
+				$("#live-content").show();
+			} else {
+				//OFF
+				$("#live-content").hide();
+				$("#live-content").html("");
+				$("#content").show();
+			}
+		});
+
 		if (window.HTMLAudioElement) {
 			$('.checkbox').show();
 			$('#alert-checkbox').prop("checked", $.jStorage.get('alert', 'true'));
@@ -120,16 +154,16 @@
 
 			if(sound.canPlayType('audio/ogg')) {
 				sound = new Audio('/sounds/alert.ogg');
-			} else if (snd.canPlayType('audio/mp3')) {
+			} else if (sound.canPlayType('audio/mp3')) {
 				sound = new Audio('/sounds/alert.mp3');
 			}
 		} else {
 			$.jStorage.set('alert', 'false');
 		}
 
-		$("#shortcreate").submit(function(event) {
+		/*$("#shortcreate").submit(function(event) {
 			//wanted this, but doesn't work in IE
-		});
+		});*/
 	});
 
 	function createShort() {

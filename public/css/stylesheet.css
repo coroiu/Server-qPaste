@@ -12,11 +12,26 @@ body {
 	float: right;
 }
 
-.navbar .time {
+.navbar .time, .navbar .text {
 	padding: 10px 15px 10px;
 	float: left;
 	color: #999;
 	font-size: 12px;
+}
+
+.navbar-static-top {
+  z-index: 1;
+  position: relative;
+}
+
+.navbar .text {
+  color: black;
+}
+
+.navbar .live-options {
+  float: right;
+  padding: 10px 15px 10px;
+  margin: 0;
 }
 
 .dropdown-menu li.danger>a:hover, .dropdown-menu li.danger>a:focus {
@@ -162,9 +177,23 @@ input[type="checkbox"] {
   overflow: hidden;
 }
 
+.full-size.with-submenu {
+  z-index: 0;
+  top: 80px;
+}
+
 @media (max-width: 979px) {
   .navbar-fixed-top {
     position: relative !important;
+  }
+
+  .navbar-static-top {
+    margin-top: -20px;
+    margin-bottom: 20px;
+  }
+
+  .navbar-static-top .navbar-inner {
+    padding: 0;
   }
 
   .top-push {
