@@ -39,6 +39,7 @@
 	};
 
 	var generateMongoUrl = function(obj) {
+		if (process.env.MONGOHQ_URL) return obj;
 		obj.hostname = (obj.hostname || 'localhost');
 		obj.port = (obj.port || 27017);
 		obj.db = (obj.db || 'test');
