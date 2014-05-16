@@ -19,6 +19,7 @@ var Upload = require('./models/upload')(mongoose);
 var globals = {
 	limit: process.env.limit || '20',
 	host: process.env.host || "http://localhost:1337",
+	port: process.env.port || 1337,
 	statistics: {
 		uploads: 0
 	}
@@ -402,4 +403,4 @@ function filetype(mimetype) {
 			return 'download';
 	}
 }
-app.listen(1337);
+app.listen(globals.port);
