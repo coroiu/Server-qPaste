@@ -25,7 +25,7 @@
 		} else if (process.env.MONGOHQ_JSON) {
 			//Heroku
 			mongo = JSON.parse(process.env.MONGOHQ_JSON);
-			cosole.log("getting config");
+			console.log("getting config");
 			console.log(mongo);
 		} else {
 			mongo = {
