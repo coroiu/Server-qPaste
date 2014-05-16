@@ -4,7 +4,6 @@
 	var mongoose = require('mongoose');
 
 	module.exports.mongoose = function () {
-		console.log("Trying to connect using: " + generateMongoUrl(config()));
 		mongoose.connect(generateMongoUrl(config()));
 		return mongoose;
 	};

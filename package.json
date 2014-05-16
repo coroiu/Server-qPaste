@@ -11,6 +11,7 @@
         "mime": "",
         "mongojs": "",
         "connect-mongo": "",
-        "mongoose": ""
+        "mongoose": "",
+        "hogan.js": ""
     }
 }

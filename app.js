@@ -35,6 +35,7 @@ app.engine('html', cons.hogan);
 app.set('view engine', 'html');
 app.set('views', __dirname + '/views');
 app.use(express.cookieParser());
+console.log(database.config());
 app.use(express.session({
 	store: new MongoStore(database.config()),
 	secret: 'imissmycat',
