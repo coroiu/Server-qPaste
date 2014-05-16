@@ -4,6 +4,7 @@
 	var mongoose = require('mongoose');
 
 	module.exports.mongoose = function () {
+		console.log("Trying to connect using: " + generateMongoUrl(config()));
 		mongoose.connect(generateMongoUrl(config()));
 		return mongoose;
 	};
@@ -25,8 +26,6 @@
 		} else if (process.env.MONGOHQ_JSON) {
 			//Heroku
 			mongo = JSON.parse(process.env.MONGOHQ_JSON);
-			console.log("getting config");
-			console.log(mongo);
 		} else {
 			mongo = {
 				"hostname": "localhost",
