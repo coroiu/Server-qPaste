@@ -6,7 +6,7 @@
 (function() {
 	var http = require('http');
 	var crypto = require("crypto");
-	var credentials = require("./s3credentials");
+	var credentials = (process.env.IS_HEROKU) ? require("./s3credentialsHeroku") : require("./s3credentials");
 	var accessKey = credentials.accessKey;
 	var secretKey = credentials.secretKey;
 	var bucketName = credentials.bucketName;
