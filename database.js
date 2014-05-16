@@ -19,8 +19,12 @@
 	var config = function () {
 		var mongo;
 		if (process.env.VCAP_SERVICES) {
+			//Appfog
 			var env = JSON.parse(process.env.VCAP_SERVICES);
 			mongo = env['mongodb2-2.4.8'][0]['credentials'];
+		} else if (process.env.MONGOHQ_URL) {
+			//Heroku
+			mongoose.connect(process.env.MONGOHQ_URL);
 		} else {
 			mongo = {
 				"hostname": "localhost",
