@@ -4,7 +4,11 @@
 	var mongoose = require('mongoose');
 
 	module.exports.mongoose = function () {
-		mongoose.connect(generateMongoUrl(config()));
+		if (process.env.IS_HEROKU) {
+			mongoose.connect(config());
+		} else {
+			mongoose.connect(generateMongoUrl(config()));
+		}
 		return mongoose;
 	};
 
@@ -24,7 +28,7 @@
 			mongo = env['mongodb2-2.4.8'][0]['credentials'];
 		} else if (process.env.MONGOHQ_URL) {
 			//Heroku
-			mongoose.connect(process.env.MONGOHQ_URL);
+			return process.env.MONGOHQ_URL;
 		} else {
 			mongo = {
 				"hostname": "localhost",
@@ -39,7 +43,6 @@
 	};
 
 	var generateMongoUrl = function(obj) {
-		if (process.env.MONGOHQ_URL) return obj;
 		obj.hostname = (obj.hostname || 'localhost');
 		obj.port = (obj.port || 27017);
 		obj.db = (obj.db || 'test');
