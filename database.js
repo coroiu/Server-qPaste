@@ -4,11 +4,7 @@
 	var mongoose = require('mongoose');
 
 	module.exports.mongoose = function () {
-		if (process.env.IS_HEROKU) {
-			mongoose.connect(config());
-		} else {
-			mongoose.connect(generateMongoUrl(config()));
-		}
+		mongoose.connect(generateMongoUrl(config()));
 		return mongoose;
 	};
 
@@ -26,9 +22,9 @@
 			//Appfog
 			var env = JSON.parse(process.env.VCAP_SERVICES);
 			mongo = env['mongodb2-2.4.8'][0]['credentials'];
-		} else if (process.env.MONGOHQ_URL) {
+		} else if (process.env.MONGOHQ_JSON) {
 			//Heroku
-			return process.env.MONGOHQ_URL;
+			mongo = JSON.parse(process.env.MONGOHQ_JSON);
 		} else {
 			mongo = {
 				"hostname": "localhost",
