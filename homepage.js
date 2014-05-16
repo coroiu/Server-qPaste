@@ -56,9 +56,23 @@
 			});
 		});
 
-		app.get('/statistics', function(req, res) {
+		/*app.get('/statistics', function(req, res) {
 			res.writeHead(200, { 'Content-Type': 'text/plain', 'Cache-Control': 'no-cache' });
 			res.end(util.inspect(statistics));
+		});*/
+
+		app.get('/newhome', function(req, res) {
+			res.render('newhome', {
+				title: 'New homepage',
+				newhome: true,
+				strings: strings,
+				globals: globals,
+				partials: {
+					masthead: 'partials/masthead',
+					footer: 'partials/footer',
+					jsimports: 'partials/jsimports'
+				}
+			});
 		});
 	};
 }());

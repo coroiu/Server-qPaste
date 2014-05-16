@@ -1,0 +1,18 @@
+.slide {
+	height:50vh;
+	width: 100%;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+.slide.main-slide {
+	height:100vh;
+}
+
+@media (min-width: 767px) {
+	.slide.main-slide {
+		background: url(/img/bg1.jpg) no-repeat center center fixed;
+	}
+}
