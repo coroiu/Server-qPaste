@@ -22,9 +22,9 @@
 			//Appfog
 			var env = JSON.parse(process.env.VCAP_SERVICES);
 			mongo = env['mongodb2-2.4.8'][0]['credentials'];
-		} else if (process.env.MONGOHQ_JSON) {
+		} else if (process.env.MONGOLAB_JSON) {
 			//Heroku
-			mongo = JSON.parse(process.env.MONGOHQ_JSON);
+			mongo = JSON.parse(process.env.MONGOLAB_JSON);
 		} else {
 			mongo = {
 				"hostname": "localhost",
