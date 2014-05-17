@@ -15,8 +15,8 @@
 			mimetype: String, // Mime-type
 			uploaded: {type: Boolean, 'default': false}, // Is file uploaded yet?
 			owner: String,
-			createdAt: { type: Date, expires: '1m' },
-			//createdAt: { type: Date, expires: '24h' },
+			//createdAt: { type: Date, expires: '1m' },
+			createdAt: { type: Date, expires: '23h' },
 			expire: {type: Date, 'default': function() {
 				var expire = new Date();
 				expire.setDate(new Date().getDate() + 1);
