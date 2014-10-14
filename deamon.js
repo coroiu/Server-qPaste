@@ -14,9 +14,9 @@
 	var Upload; // model
 	var self = this;
 
-	var _constructor = function (storage, Upload) {
-		self.storage = storage;
-		self.Upload = Upload;
+	var _constructor = function (_storage, _Upload) {
+		storage = _storage;
+		Upload = _Upload;
 
 		Upload.getAll(function (err, databaseUploads) {
 			for (var key in databaseUploads) {
