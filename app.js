@@ -19,8 +19,6 @@ var Upload = require('./models/upload')(mongoose);
 //Deamon
 var deamon = require('./deamon')(storage, Upload);
 
-console.log(storage);
-
 var globals = {
 	limit: process.env.limit || '20',
 	host: process.env.host || "http://localhost:1337",

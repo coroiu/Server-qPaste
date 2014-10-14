@@ -193,9 +193,11 @@
 			});
 		});
 
-		event.cancelBubble = true;
-		event.returnValue = false;
-		event.preventDefault();
+		if (typeof(elem) !== 'undefined') {
+			event.cancelBubble = true;
+			event.returnValue = false;
+			event.preventDefault();
+		}
 		return false;
 	}
 
