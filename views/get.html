@@ -200,7 +200,7 @@
 	}
 
 	function loadContent(alert) {
-		$.get('/content/' + uid, function(data) {
+		$.get('/content/' + uid).done(function (data) {
 			$('#content').html(data);
 			$('#wait-content').hide();
 			$('#content').show();
@@ -208,6 +208,9 @@
 			if (alert) {
 				alertSound();
 			}
+		}).fail(function () {
+			//Retry
+			loadContent(alert);
 		});
 	}
 
