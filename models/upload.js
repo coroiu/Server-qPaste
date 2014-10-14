@@ -34,6 +34,21 @@
 			});
 		};
 
+		uploadSchema.statics.getAll = function (callback) {
+			Upload.find({}, function (err, uploads) {
+				var error;
+				if (err) {
+					error = new Error('Couldn\'t get uploads.');
+					error.name = "Database error";
+					error.status = 500;
+					error.originalError = err;
+					return callback(error);
+				}
+
+				return callback(null, uploads);
+			});
+		};
+
 		uploadSchema.statics.getUpload = function (uid, callback) {
 			Upload.findOne({ uid: uid }, function (err, upload) {
 				var error;
