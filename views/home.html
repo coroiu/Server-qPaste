@@ -237,7 +237,11 @@
 				},
 				
 				hasFlash: function() {
-					return (typeof navigator.plugins == "undefined" || navigator.plugins.length == 0) ? !!(new ActiveXObject("ShockwaveFlash.ShockwaveFlash")) : navigator.plugins["Shockwave Flash"];
+					try {
+						return (typeof navigator.plugins == "undefined" || navigator.plugins.length == 0) ? !!(new ActiveXObject("ShockwaveFlash.ShockwaveFlash")) : navigator.plugins["Shockwave Flash"];
+					} catch (ex) {
+						return false;
+					}
 				}
 			};
 
