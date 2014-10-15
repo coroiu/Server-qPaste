@@ -250,8 +250,10 @@ app.post('/upload-done', function (req, res, next) {
 				res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
 				res.end('');
 
-				for (i = 0; i < callbacks.length; i++) {
-					callbacks[upload.uid][i]();
+				if (callbacks[upload.uid]) {
+					for (i = 0; i < callbacks[upload.uid].length; i++) {
+						callbacks[upload.uid][i]();
+					}
 				}
 			});
 		});
