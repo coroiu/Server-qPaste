@@ -1,2 +1,2 @@
-cd C:\MongoDB\bin
-mongod -dbpath .\data\db
+mkdir .\db
+C:\MongoDB\bin\mongod.exe -dbpath db
