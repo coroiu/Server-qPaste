@@ -8,13 +8,27 @@
 		<meta name="author" content="{{strings.author}}">
 		<meta property="og:image" content="http://qpaste.it/img/upload-128px.png"/>
 
-		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 		<link href="/css/newhome-stylesheet.css" rel="stylesheet">
 	</head>
 	<div class="site-overlay"></div>
 	<body>
 		<div class="slide main-slide">
-			<div class="">
+			<div class="header">
+				<div class="title">
+					qPaste
+				</div>
+				<div class="menu">
+					{{> menu}}
+				</div>
+			</div>
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-12">
+						<h1>Temporary Cloud Storage</h1>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="slide" id="slide1">

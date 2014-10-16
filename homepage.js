@@ -67,10 +67,12 @@
 				newhome: true,
 				strings: strings,
 				globals: globals,
+				hideHome: true,
 				partials: {
 					masthead: 'partials/masthead',
 					footer: 'partials/footer',
-					jsimports: 'partials/jsimports'
+					jsimports: 'partials/jsimports',
+					menu: 'partials/menu'
 				}
 			});
 		});
