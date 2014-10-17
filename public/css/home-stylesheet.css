@@ -3,82 +3,26 @@ body {
 	padding-bottom: 40px;
 }
 
-/* Default bootstrap
- * For some reason this is lost and inputs look wierd
- * 
- * FIXED, forgot html5 doctype
- */
-/*input[type="text"], input[type="password"] {
-	padding: 14px 4px;
-}*/
-
 .hide {
 	display: none !important;
 }
 
-.muted a {
+.muted {
 	color: #BBB;
 	text-decoration: none;
 }
 
-.muted a:hover {
-	color: #999;
+.tooltip.static {
+	opacity: 1;
 }
 
-.masthead .account {
-	border-left: 1px solid #eee;
-	padding-left: 2px;
+.relative {
+	position: relative;
 }
 
-.dropdown .right {
-	left: auto;
-	right: 0;
-}
-
-.dropdown .right::before {
-	left: auto !important;
-	right: 9px;
-}
-
-.dropdown .right::after {
-	left: auto !important;
-	right: 10px;
-}
-
-.dropdown .login {
-	padding: 0 10px;
-}
-
-.dropdown .login .overlay {
-	background: rgba(0, 0, 0, 0.1);
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	top: 0;
-	left: 0;
-}
-
-.dropdown .login .overlay .spinner {
-	background: url(/img/zoom-preloader.gif);
-	position: absolute;
-	width: 24px;
-	height: 24px;
-	right: 50%;
-	bottom: 50%;
-	margin: 0 -12px -12px 0;
-}
-
-.dropdown .menu ul {
-	list-style: none;
-	margin: 0;
-}
-
-.dropdown .menu .username {
-	font-size: 12pt;
-	font-weight: bold;
-	border-bottom: 1px solid #eee;
-	padding: 5px 10px 10px 15px;
-	margin-bottom: 5px;
+.masthead .trademark {
+	height: 40px;
+	line-height: 40px;
 }
 
 .navbar-fixed {
@@ -107,111 +51,76 @@ body {
 	margin: 30px 0;
 }
 
-/* Main marketing message and sign up button */
-.jumbotron {
-	position: relative;
-}
-
-.jumbotron .view {
-	position: relative;
-	top: 0;
-	left: 0;
-}
-
-.jumbotron .overlay {
-	display: none;
-	position: absolute;
-	z-index: 200;
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-
-	background: rgba(255, 255, 255, .95);
-	border: dashed #333;
-	border-width: 2px;
-	-moz-border-radius: 15px;
-	border-radius: 15px;
-}
-
-.jumbotron .center-wrapper {
-	width: 100%;
-	height: 100%;
-	text-align: center;
-}
-
-.jumbotron .center-wrapper:before {
-	content: "";
-	display: inline-block;
-	height: 100%;
-	vertical-align: middle;
-}
-
-.jumbotron .center-wrapper .content {
-	display: inline-block;
-	vertical-align: middle;
-}
-
-.jumbotron #default {
-	padding: 60px 0;
-}
-
-.jumbotron #default h1 {
-	font-size: 72px;
-	line-height: 1;
-}
-
-.jumbotron #default .btn {
-	font-size: 21px;
-	padding: 14px 24px;
-}
-
-.jumbotron #default .icon {
+/* Main view */
+.main-view > .logo {
 	width: 128px;
-	height: 128px;
-	background: url(/img/upload-128px.png);
-	float: left;
+	display: block;
+	margin: auto;
 }
 
-.jumbotron #default .content {
-	margin-left: 128px;
-	padding-left: 20px;
+.main-view > .content {
+	font-weight: bold;
 }
 
-.jumbotron #drop {
-	
+.main-view > .content > h1 {
+	font-size: 40px;
+	font-weight: bold;
 }
 
-.jumbotron #drop .content {
-	font-size: 72px;
-	line-height: 1;
+/* Buttons (choices) view */
+.choices-view {
+	/*text-align: center;*/
 }
 
-.jumbotron #upload {
-	display: none;	
+.upload-view #paste-text textarea {
+	font-family: monospace;
+	width: 100%;
+	overflow: auto;
 }
 
-.jumbotron #upload .link {
-	float: left;
+.upload-view #upload-files .upload {
+	/*background: whitesmoke;*/
+}
 
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
-
-	display: inline-block;
-	/*height: 20px;*/
-	padding: 4px 6px;
+.upload-view #upload-files .upload .file {
+	background: whitesmoke;
+	position: relative;
+	overflow: none;
+	padding: 10px 20px;
+	height: 40px;
+	margin-top: 10px;
 	margin-bottom: 10px;
-	font-size: 14px;
-	line-height: 20px;
-	color: #555555;
-	vertical-align: middle;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
 
-.jumbotron #upload #copy {
-	margin-left: -5px;
+.upload-view #upload-files .upload a.last {
+	border-top-right-radius: 5px !important;
+	border-bottom-right-radius: 5px !important;
+}
+
+.upload-view #upload-files .upload .file > .file-progress {
+	background: #CBF2D1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 40px;
+}
+
+.upload-view #upload-files .upload .file span {
+	position: relative;
+	z-index: 100;
+}
+
+.upload-view #upload-files .upload .file .filename {
+	font-weight: bold;
+
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.upload-view #upload-files .upload .file .filesize {
+	text-align: right;
 }
 
 /* Supporting marketing content */
@@ -325,30 +234,16 @@ body {
 }
 
 
-@media (max-width: 767px) { 
-	.jumbotron #default .content {
-		margin-left: 0;
-		padding-left: 0;
-		text-align: center;
+@media (min-width: 768px) { 
+	.main-view > .logo {
+		float: left;
 	}
 
-	.jumbotron #default h1 {
-		font-size: 40px;
-		line-height: 1;
+	.main-view > .content {
+		margin-left: 150px;
 	}
 
-	.jumbotron #default .icon {
-		float: none;
-		display: block;
-		margin: auto;
-	}
-
-	.jumbotron #drop .content {
-		font-size: 40px;
-		line-height: 1;
-	}
-
-	.jumbotron #default .btn {
-		margin: 10px;
+	.main-view > .content > h1 {
+		font-size: 70px;
 	}
 }
