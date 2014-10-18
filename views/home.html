@@ -12,7 +12,9 @@
 		<link href="/css/home-stylesheet.css" rel="stylesheet">
 	</head>
 	<body>
-		<div class="site-overlay"></div>
+		<div class="site-overlay">
+			<p>Drop files anywhere to upload.</p>
+		</div>
 		<div class="container">
 			{{> masthead}}
 			<div class="row">
@@ -130,10 +132,7 @@
 		</form>
 
 		{{> jsimports}}
-		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
-		<script src="/js/jquery.ui.widget.js"></script>
-		<script src="/js/jquery.fileupload.js"></script>
 		<script type="text/javascript" src="/js/jquery.zclip.min.js"></script>
 		<script type="text/javascript" src="/js/zip/zip.js"></script>
 		<script type="text/javascript">
@@ -353,36 +352,71 @@
 			ko.applyBindings(Application);
 			
 			zip.workerScriptsPath = "/js/zip/";
-			$.event.props.push('dataTransfer');
 
-			$('body')
-			.bind('dragenter', Application.dragEnter)
-			.bind('dragleave', Application.dragEnd)
-			.bind("dragover", Application.browserIgnoreDrag)
-			.bind('drop', Application.drop);
+			$(function(){
+				$.event.props.push('dataTransfer');
 
-			$('#upload-form input[type="file"]').change(function() {
-				if($(this).val() !== "") {
-					Application.newUpload($(this).prop('files'));
-					Application.changeView(null, null, Views.FileUpload);
-				}
-			});
+				$(window).bind('dragover', dragover);
+				$(window).bind('drop', drop);
+				$('.site-overlay').bind('dragleave', dragleave);
+				var dragTimeout;
 
-			if (!Application.hasFlash()) {
-				$('#copy').hide();
-			}
-
-			//Tab functionality
-			$("textarea").keydown(function(e) {
-				var $this, end, start;
-				if (e.keyCode === 9) {
-					start = this.selectionStart;
-					end = this.selectionEnd;
-					$this = $(this);
-					$this.val($this.val().substring(0, start) + "\t" + $this.val().substring(end));
-					this.selectionStart = this.selectionEnd = start + 1;
+				function dragover(event) {
+					var e = event || window.event;
+					clearTimeout(dragTimeout);
+					$('.site-overlay').show();
+					if (e.preventDefault) {
+						e.stopPropagation();
+						e.preventDefault();
+					}
 					return false;
 				}
+
+				function dragleave(event) {
+					dragTimeout = setTimeout(function(){
+						var e = event || window.event;
+						$('.site-overlay').hide();
+						if (e.stopPropagation) {
+							e.stopPropagation();
+						}
+					}, 300);
+				}
+
+				function drop(event) {
+					var e = event || window.event;
+					Application.newUpload(e.originalEvent.dataTransfer.files);
+					Application.changeView(null, null, Views.FileUpload);
+					$('.site-overlay').hide();
+					if (e.preventDefault) {
+						e.stopPropagation();
+						e.preventDefault();
+					}
+					return false;
+				}
+
+				$('#upload-form input[type="file"]').change(function() {
+					if($(this).val() !== "") {
+						Application.newUpload($(this).prop('files'));
+						Application.changeView(null, null, Views.FileUpload);
+					}
+				});
+
+				if (!Application.hasFlash()) {
+					$('#copy').hide();
+				}
+
+				//Tab functionality
+				$("textarea").keydown(function(e) {
+					var $this, end, start;
+					if (e.keyCode === 9) {
+						start = this.selectionStart;
+						end = this.selectionEnd;
+						$this = $(this);
+						$this.val($this.val().substring(0, start) + "\t" + $this.val().substring(end));
+						this.selectionStart = this.selectionEnd = start + 1;
+						return false;
+					}
+				});
 			});
 		</script>
 	</body>
