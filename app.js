@@ -20,7 +20,7 @@ var Upload = require('./models/upload')(mongoose);
 var deamon = require('./deamon')(storage, Upload);
 
 var globals = {
-	limit: process.env.limit || '20',
+	limit: process.env.limit || '40',
 	host: process.env.host || "http://localhost:1337",
 	port: process.env.PORT || 1337,
 	statistics: {
@@ -111,6 +111,32 @@ app.get('/delete/:sid', function(req, res) {
 	});
 });
 
+//Returns when upload is ready
+app.get('/ready/:uid', function (req, res) {
+	Upload.findOne({ uid: req.params.uid }, function (err, upload) {
+		var error;
+		if (err) {
+			error = new Error('Couldn\'t search for token in database.');
+			error.name = "Database error";
+			error.status = 500;
+			error.originalError = err;
+			return next(error);
+		} else if (!upload.uploaded) {
+			req.connection.setTimeout(3600000); //1 Hour timeout
+			req.socket.setTimeout(3600000);
+			if (callbacks[upload.uid]) {
+				callbacks[upload.uid].push(function () {
+					res.writeHead(204, {});
+					res.end();
+				});
+			}
+		} else {
+			res.writeHead(204, {});
+			res.end();
+		}
+	});
+});
+
 //Ajax content provider
 app.get('/content/:uid', function (req, res) {
 	Upload.findOne({ uid: req.params.uid }, function (err, upload) {
@@ -136,14 +162,16 @@ app.get('/content/:uid', function (req, res) {
 });
 
 function renderContent(req, res, upload) {
-	res.render('get', {
+	res.render('getnew', {
 		title: 'Get paste',
 		uid: upload.uid,
-		time: timeleft(timediff(upload.expire)),
+		timeleft: timeleft(timediff(upload.expire)),
 		timestamp: timediff(upload.expire),
 		page: globals.host + "/get/" + upload.uid,
-		link: upload.url,
+		link: storage.getSignedS3Url( upload.resourcepath, 'inline;', Math.round((upload.expire.getTime() + 3600000)/1000) ),
+		permalink: upload.url,
 		available: upload.uploaded,
+		filetype: filetype(upload.mimetype),
 		owner: (req.sessionID == upload.owner)
 	});
 }
@@ -409,8 +437,10 @@ function filetype(mimetype) {
 		case 'audio/ogg':
 		case 'audio/wav':
 			return 'audio';
+		case 'application/zip':
+			return 'zip';
 		default:
-			return 'download';
+			return 'other';
 	}
 }
 app.listen(globals.port);

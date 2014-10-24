@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>qPaste - {{title}}</title>
+	<style type="text/css">html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+	.smooth_zoom_preloader {
+		background-image: url(/img/zoom-preloader.gif);
+	}	
+	.smooth_zoom_icons {
+		background-image: url(/img/zoom-icons.png);
+	}
+	</style>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/css/bootstrap-switch.min.css" rel="stylesheet">
+	<link href="/css/get-stylesheet.css" rel="stylesheet">
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/">qPaste</a>
+			</div>
+			<p class="navbar-text">Available for another xx:xx:xx</p>
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Menu <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="#">Generate short link</a></li>
+							<li><a href="#">Generate QR code</a></li>
+							<li class="divider"></li>
+							<li><a href="{{link}}">Save as</a></li>
+							{{#owner}}
+							<li class="danger"><a href="#">Delete</a></li>
+							{{/owner}}
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Templates -->
+	<div style="display:none;">
+		<script type="text/html" id ="folder-template">
+			<li>
+				<a href="#" data-bind="text: name, click: toggle, css: { open: isOpen }" class="folder"></a>
+				<ul data-bind="if: isOpen">
+					<!-- ko template: { name: 'folder-template', foreach: foldersAsArray() } -->
+					<!-- /ko -->
+					<!-- ko template: { name: 'file-template', foreach: files } -->
+					<!-- /ko -->
+				</ul>
+			</li>
+		</script>
+		<script type="text/html" id="file-template">
+			<li><a href="#" data-bind="text: name, click: open" class="file"></a></li>
+		</script>
+	</div>
+
+	<div class="main-container flexbox-container" data-bind="css: { fullsize: fullsize }">
+		<!-- ko if: isZip -->
+			<div class="content filelist" data-bind="with: zip">
+				<ul>
+					<!-- ko template: { name: 'folder-template', foreach: foldersAsArray() } -->
+					<!-- /ko -->
+					<!-- ko template: { name: 'file-template', foreach: files } -->
+					<!-- /ko -->
+				</ul>
+			</div>
+		<!-- /ko -->
+
+		<div class="content-container">
+			<!-- ko with: currentView -->
+				<div class="content load" data-bind="css: { hidden: progress() == 100 }">
+					<div class="cog1"><span class="glyphicon glyphicon-cog"></span></div>
+					<div class="cog2"><span class="glyphicon glyphicon-cog"></span></div>
+					<div class="file-progress">
+						<div class="bar" data-bind="style: { width: progress() + '%' }"></div>
+					</div>
+				</div>
+				<!-- ko if: progress() == 100 -->
+					<!-- ko if: $data instanceof TextView -->
+						<div class="content text">
+							<div class="text-container">
+								<pre><code data-bind="text: contents"></code></pre>
+							</div>
+						</div>
+					<!-- /ko -->
+
+					<!-- ko if: $data instanceof EmbeddView -->
+						<div class="content embedd">
+							<iframe src="" data-bind="attr: { src: url }"></iframe>
+						</div>
+					<!-- /ko -->
+
+					<!-- ko if: $data instanceof EmbeddView -->
+						<div class="content embedd">
+							<iframe src="" data-bind="attr: { src: url }"></iframe>
+						</div>
+					<!-- /ko -->
+
+					<!-- ko if: $data instanceof ImageView -->
+						<div class="content image">
+							<img id="image" class="unselectable" data-bind="attr: { src: url }"/>
+						</div>
+					<!-- /ko -->
+
+					<!-- ko if: $data instanceof AudioView -->
+						<div class="content audio">
+							<div class="inner">
+								<div class="albumart">
+									<img src="/img/albumart.jpg">
+									<canvas id="fft"></canvas>
+								</div>
+								<audio id="audio" controls="controls">
+									<source src="" preload="metadata" data-bind="attr: { src: url, type: mimetype }"/>
+								</audio>
+							</div>
+						</div>
+					<!-- /ko -->
+
+					<!-- ko if: $data instanceof OtherView -->
+						<div class="content other">
+							<div class="container">
+								<div class="row">
+									<div class="col-sm-8 col-sm-offset-2 download">
+										<a href="#" data-bind="attr: { href: url }"><div class="icon"></div></a>
+										<h1>Download file</h1>
+										<p>
+											This file cannot be viewed in your browser, download and view it locally.
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					<!-- /ko -->
+				<!-- /ko -->
+			<!-- /ko -->
+		</div>
+	</div>
+
+	<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+	<script src="http://cdn.extendjs.org/0.2.2/extend.min.js"></script>
+	<script src="/js/smoothzoom.min.js"></script>
+	<script src="http://yandex.st/highlightjs/7.3/highlight.min.js"></script>
+	<script type="text/javascript" src="/js/zip/zip.js"></script>
+	<script type="text/javascript" src="/js/zip/zip-ext.js"></script>
+	<script type="text/javascript" src="/js/zip/mime-types.js"></script>
+	<script type="text/javascript">
+		Array.prototype.remove = function(from, to) {
+			var rest = this.slice((to || from) + 1 || this.length);
+			this.length = from < 0 ? this.length + from : from;
+			return this.push.apply(this, rest);
+		};
+
+		var ContentType = {
+			"Image":	"image",
+			"Embedd": 	"embedd",
+			"Text": 	"text",
+			"Audio": 	"audio",
+			"Zip": 		"zip",
+			"Other": 	"other"
+		};
+
+		var Application = new (function () {
+			var self = this;
+
+			self.uid = "{{uid}}";
+			self.timeleft = "{{timeleft}}";
+			self.timestamp = {{timestamp}};
+			self.link = "{{{link}}}";
+			self.permalink = "{{{permalink}}}";
+			self.isAvailable = ko.observable({{available}});
+			self.isOwner = {{owner}};
+			self.isZip = ko.observable(false);
+			self.mimetype = "{{{mimetype}}}";
+			self.filetype = "{{filetype}}";
+			
+			self.currentView = ko.observable();
+
+			self.zip = ko.observable();
+			
+			self.constructor = function () {
+				self.zip(new ZipFolder());
+				self.zip().open = true;
+				if (self.isAvailable) {
+					self.ready();
+				} else {
+					var tryPoll = function () { $.get('/ready/' + self.uid).done(function (done) {
+							self.ready();
+						}).fail(function (error) {
+							tryPoll();
+						});
+					};
+				}
+			}
+
+			self.fullsize = ko.computed(function () {
+				if (!self.currentView())
+					return false;
+				return self.currentView() instanceof ImageView || 
+					   self.currentView() instanceof AudioView ||
+					   self.currentView() instanceof EmbeddView;
+			});
+
+			self.ready = function () {
+				switch (self.filetype) {
+					case ContentType.Text:
+						var reader = new DownloadReader(self.link);
+						self.currentView(new TextView(reader));
+						break;
+					case ContentType.Embedd:
+						var reader = new StaticReader(self.link);
+						self.currentView(new EmbeddView(reader));
+						break;
+					case ContentType.Image:
+						var reader = new UrlReader(self.link);
+						self.currentView(new ImageView(reader));
+						break;
+					case ContentType.Audio:
+						var reader = new StaticReader(self.link);
+						self.currentView(new AudioView(reader));
+						break;
+					case ContentType.Zip:
+						if (window.Blob) {
+							self.isZip(true);
+							self.readZip();
+							break;
+						}
+						/*var reader = new UrlReader(self.link);
+						self.currentView(new AudioView(reader));*/
+					case ContentType.Other:
+						var reader = new StaticReader(self.link);
+						self.currentView(new OtherView(reader));
+						break;
+				}
+			}
+
+			self.readZip = function () {
+				zip.workerScriptsPath = "/js/zip/";
+				zip.useWebWorkers = true;
+				zip.createReader(new zip.HttpRangeReader(self.permalink), function(zipReader) {
+					zipReader.getEntries(function (data) {
+						var rootFolder = new ZipFolder();
+						for (var file in data) {
+							try {
+								var file = data[file];
+								var name = file.filename;
+								var path = name.split('/');
+
+								if (path.length == 1) {
+									//Root file
+									rootFolder.addFile(new ZipFile(file));
+								} else {
+									//Iterates through all folders, and finally places file in the last one.
+									var folder;
+									for (var i = 0; i < path.length-1; i++) {
+										folder = rootFolder.getFolder(path[i]);
+									}
+									if (path[path.length-1] != "")
+										folder.addFile(new ZipFile(file));
+								}
+							} catch (ex) {
+								console.log(ex);
+							}
+						}
+						self.zip(rootFolder);
+					});
+				}, function (error) {
+					console.log(error);
+				});
+			}
+
+			self.setView = function (view) {
+				self.currentView(view);
+			}
+		})();
+
+		var ZipFolder = function (_name) {
+			var self = this;
+			self.isOpen = ko.observable(false);
+			self.folders = {};
+			self.files = [];
+			self.name = (typeof _name == "undefined") ? null : _name;
+
+			/**
+			 * Tries to get the specified folder. If it doesn't exist it is created.
+			 * @param  {string} name Folder name.
+			 * @return {ZipFolder} returns a ZipFolder with the specified name.
+			 */
+			self.getFolder = function (name) {
+				if (typeof self.folders[name] == "undefined") {
+					self.folders[name] = new ZipFolder(name);
+				}
+				return self.folders[name];
+			}
+
+			self.addFile = function (file) {
+				self.files.push(file);
+			}
+
+			self.foldersAsArray = function () {
+				var array = [];
+				for (var key in self.folders) {
+					array.push(self.folders[key]);
+				}
+				return array;
+			}
+
+			self.toggle = function () {
+				self.isOpen(!self.isOpen());
+			}
+		};
+
+		var ZipFile = function (_file) {
+			var self = this;
+			self.file = (typeof _file == "undefined") ? null : _file;
+
+			self.name = ko.computed(function () {
+				if (self.file == null)
+					return "";
+				
+				var split = self.file.filename.split("/");
+				return split[split.length-1];
+			});
+
+			self.open = function () {
+				//There has to be a nicer way, just can't be bothered right now.
+				var mimetype = zip.getMimeType(self.file.filename);
+				var type = null;
+				switch (mimetype) {
+					case 'image/bmp':
+					case 'image/x-windows-bmp':
+					case 'image/gif':
+					case 'image/jpeg':
+					case 'image/png':
+						type = ContentType.Image;
+						break;
+					case 'application/x-shockwave-flash':
+					case 'application/pdf':
+						type = ContentType.Embedd;
+						break;
+					case 'application/x-javascript':
+					case 'application/javascript':
+					case 'application/ecmascript':
+					case 'text/javascript':
+					case 'text/ecmascript':
+					case 'text/css':
+					case 'text/x-asm':
+					case 'text/asp':
+					case 'text/x-c':
+					case 'text/x-fortran':
+					case 'text/x-h':
+					case 'text/x-script':
+					case 'text/webviewhtml':
+					case 'text/x-pascal':
+					case 'text/pascal':
+					case 'text/x-script.perl':
+					case 'text/x-script.perl-module':
+					case 'text/x-script.phyton':
+					case 'text/x-java-source':
+					case 'text/x-csharp':
+					case 'text/plain':
+						type = ContentType.Text;
+						break;
+					case 'text/html':
+						//type = 'runnable';
+						type = ContentType.Text;
+						break;
+					case 'audio/mp3':
+					case 'audio/mpeg':
+					case 'audio/ogg':
+					case 'audio/wav':
+						type = ContentType.Audio;
+						break;
+					case 'application/zip':
+						type = ContentType.Zip;
+						break;
+					default:
+						type = ContentType.Other;
+						break;
+				}
+
+				var reader = new ZipReader(self.file);
+				switch (type) {
+					case ContentType.Text:
+						Application.setView(new TextView(reader));
+						break;
+					case ContentType.Embedd:
+						Application.setView(new EmbeddView(reader));
+						break;
+					case ContentType.Image:
+						Application.setView(new ImageView(reader));
+						break;
+					case ContentType.Audio:
+						Application.setView(new AudioView(reader, mimetype));
+						break;
+					/*case ContentType.Zip:
+					case ContentType.Other:*/
+					default:
+						Application.setView(new OtherView(reader));
+						break;
+				}
+			};
+		};
+
+		var DummyView = function () {
+			var self = this;
+			self.progress = ko.observable(0);
+		};
+
+		var TextView = function(_reader) {
+			var self = this;
+			self.progress = ko.observable(0);
+			self.contents = ko.observable("");
+
+			_reader.read().progress(function (progress) {
+				self.progress(progress*100);
+			})
+			.done(function (data) {
+				self.contents(data);
+				self.progress(100);
+				$('pre code').each(function(i, e) {hljs.highlightBlock(e)});
+			});
+		};
+
+		var EmbeddView = function(_reader) {
+			var self = this;
+			self.progress = ko.observable(0);
+			self.url = ko.observable(0);
+
+			_reader.getUrl().progress(function (progress) {
+				self.progress(progress*100);
+			})
+			.done(function (url) {
+				self.url(url);
+				self.progress(100);
+			});
+		};
+
+		var ImageView = function(_reader) {
+			var self = this;
+			self.progress = ko.observable(0);
+			self.url = ko.observable(0);
+
+			_reader.getUrl().progress(function (progress) {
+				self.progress(progress*100);
+			})
+			.done(function (url) {
+				self.url(url);
+				self.progress(100);
+
+				setTimeout(function() {
+					$('.content.image #image').smoothZoom({
+						width: '100%',
+						height: '100%',
+						responsive: true,
+						animation_SMOOTHNESS: 2,
+						button_AUTO_HIDE: false,
+						zoom_MIN: 50,
+						initial_ZOOM: '100',
+						border_SIZE: 0,
+						background_COLOR: '#f7f7f7'
+					});
+				}, 100);
+			});
+		};
+
+		var AudioView = function(_reader, _mimetype) {
+			var self = this;
+			self.progress = ko.observable();
+			self.url = ko.observable();
+			self.mimetype = ko.observable();
+
+			if (typeof _mimetype != "undefined") {
+				self.mimetype(_mimetype);
+			}
+
+			_reader.getUrl().progress(function (progress) {
+				self.progress(progress*100);
+			})
+			.done(function (url) {
+				self.url(url);
+				self.progress(100);
+				setTimeout(function () {
+					var a = $('audio')[0];
+					if (typeof a != 'undefined') {
+						a.load()
+					}
+				}, 200);
+			});
+		};
+
+		var OtherView = function(_reader) {
+			var self = this;
+			self.progress = ko.observable(0);
+			self.url = ko.observable(0);
+
+			_reader.getUrl().progress(function (progress) {
+				self.progress(progress*100);
+			})
+			.done(function (url) {
+				self.url(url);
+				self.progress(100);
+			});
+		};
+
+		var Reader = Class.extend(function () {
+			this.constructor = function () {
+
+			}
+
+			this.read = function () {
+				throw "Not implemented";
+			}
+
+			this.getUrl = function () {
+				throw "Not implemented";
+			}
+		});
+
+		/**
+		 * Class for extracting zip files into blob urls.
+		 */
+		var ZipReader = Reader.extend(function () {
+			var file = null;
+
+			this.constructor = function (_file) {
+				file = _file;
+			}
+
+			this.getUrl = function () {
+				var deffered = $.Deferred();
+				
+				var cached = ObjectCache.read(file.filename);
+				if (cached) {
+					deffered.resolve(cached);
+				} else {
+					file.getData(new zip.BlobWriter(), function(blob) {
+						var blobUrl = window.URL.createObjectURL(blob);
+						ObjectCache.write(file.filename, blobUrl);
+						deffered.resolve(blobUrl);
+					}, function(current, total) {
+						var percentComplete = current / total;
+						deffered.notify(percentComplete);
+					});
+				}
+
+				return deffered.promise();
+			}
+
+			this.read = function () {
+				var deffered = $.Deferred();
+				
+				var cached = ObjectCache.read(file.filename);
+				if (cached) {
+					deffered.resolve(cached);
+				} else {
+					file.getData(new zip.TextWriter(), function(text) {
+						ObjectCache.write(file.filename, text);
+						deffered.resolve(text);
+					}, function(current, total) {
+						var percentComplete = current / total;
+						deffered.notify(percentComplete);
+					});
+				}
+
+				return deffered.promise();	
+			}
+		});
+
+		/**
+		 * Class for just returning the url it was given.
+		 */
+		var StaticReader = Reader.extend(function () {
+			var url = "";
+
+			this.constructor = function (_url) {
+				url = _url;
+			}
+
+			this.getUrl = function () {
+				var deffered = $.Deferred();
+				
+				deffered.resolve(url);
+
+				return deffered.promise();
+			}
+		});
+
+		/**
+		 * Class for returning data as an url. If blob is supported the file will
+		 * first be downloaded into ram.
+		 */
+		var UrlReader = Reader.extend(function () {
+			var url = "";
+
+			this.constructor = function (_url) {
+				url = _url;
+			}
+
+			this.getUrl = function () {
+				var deffered = $.Deferred();
+				
+				if (window.Blob) {
+					var xhr = new XMLHttpRequest();
+					xhr.addEventListener("progress", function(evt) {
+						if (evt.lengthComputable) {
+							var percentComplete = evt.loaded / evt.total;
+							deffered.notify(percentComplete);
+						}
+					}, false);
+					xhr.onreadystatechange = function() {
+						if (this.readyState == 4 && this.status == 200){
+							//console.log(this.response, typeof this.response);
+							deffered.resolve(window.URL.createObjectURL(this.response));
+						} else if (this.readyState == 4) {
+							deffered.reject(this);
+							console.log("Error occured in UrlReader: " + this);
+							console.log(this);
+						}
+					}
+					xhr.open('GET', url);
+					xhr.responseType = 'blob';
+					xhr.send();
+				} else {
+					deffered.resolve(url);
+				}
+
+				return deffered.promise();
+			}
+		});
+
+		/**
+		 * Class for downloading and returning contents (text).
+		 */
+		var DownloadReader = Reader.extend(function () {
+			var url = "";
+
+			this.constructor = function (_url) {
+				url = _url;
+			}
+
+			this.read = function () {
+				var deffered = $.Deferred();
+
+				$.ajax({
+					url: url,
+					dataType: "text",
+					xhr: function() {
+						var xhr = new window.XMLHttpRequest();
+						//Don't need upload progress
+						/*xhr.upload.addEventListener("progress", function(evt) {
+							if (evt.lengthComputable) {
+								var percentComplete = evt.loaded / evt.total;
+								//Do something with upload progress here
+							}
+						}, false);*/
+
+						xhr.addEventListener("progress", function(evt) {
+							if (evt.lengthComputable) {
+								var percentComplete = evt.loaded / evt.total;
+								deffered.notify(percentComplete);
+							}
+						}, false);
+
+						return xhr;
+					}
+				})
+				.done(function (data) {
+					deffered.resolve(data);
+				}).fail(function (response, error) {
+					deffered.reject(error);
+					console.log("Error occured in DownloadReader: " + error);
+				});
+
+				return deffered.promise();
+			}
+		});
+
+		/**
+		 * Cache wrapper for objects.
+		 * @return {ObjectCache} Cache wrapper.
+		 */
+		var ObjectCache = new (function () {
+			var self = this;
+			var max = 10;
+			var names = [];
+			var objs = [];
+
+			/**
+			 * Writes blob to cache.
+			 * @param  {string} name Identifier
+			 * @param  {object} obj Object to store
+			 */
+			self.write = function (name, obj) {
+				names.unshift(name);
+				objs.unshift(obj);
+				
+				if (names.length > max) {
+					names.pop();
+					objs.pop();
+				}
+			};
+
+			/**
+			 * Tries to find object in cache.
+			 * @param  {[string]} name Identifier
+			 * @return {mixed} Object if it was found, false otherwise.
+			 */
+			self.read = function (name) {
+				var toReturn = false;
+				for (var i = 0; i < names.length; i++) {
+					if (names[i] == name) {
+						toReturn = objs[i];
+
+						//Put object in front
+						names.unshift(names[i]);
+						objs.unshift(objs[i]);
+						names.remove(i+1);
+						objs.remove(i+1);
+					}
+				}
+				return toReturn;
+			}
+		})();
+
+		ko.applyBindings(Application);
+
+		Application.constructor();
+
+		//Others
+		$('head').append('<link rel="stylesheet" href="http://yandex.st/highlightjs/7.3/styles/default.min.css"/>');
+	</script>
+</body>
+</html>

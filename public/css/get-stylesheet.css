@@ -1,0 +1,381 @@
+body {
+	background: whitesmoke;
+}
+
+pre {
+	margin: 0;
+	border: 0;
+	font-size: 100%;
+	font: monospace;
+	background: #f0f0f0;
+	vertical-align: baseline;
+	border-radius: 0;
+}
+
+code {
+	border: 0;
+}
+
+.navbar {
+	margin: 0;
+}
+
+.dropdown-menu li.danger>a:hover, .dropdown-menu li.danger>a:focus {
+	background: #cc0003;
+	color: white;
+}
+
+.main-container {
+	
+}
+
+.main-container.fullsize {
+	position: fixed;
+	top: 100px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.flexbox-container {
+	/*display: flex;*/
+	justify-content: flex-start;
+	flex-direction: row;
+}
+
+.flexbox-container > div {	
+	flex-grow: 2;
+}
+
+.flexbox-container > .filelist {
+	flex-grow: 1;
+}
+
+.main-container .content-container {
+	position: relative;
+	height: 100%;
+}
+
+.content.text {
+	height: 100%;
+	overflow: auto;
+}
+
+.content.text .text-container {
+	max-width: 1000px;
+	background: #f0f0f0;
+	margin: auto;
+	min-height: 100%;
+}
+
+.content.text .text-container code {
+	font-size: 90%;
+}
+
+.content.load {
+	position: relative;
+	margin-top: 50px;
+	width: 400px;
+	height: 200px;
+	margin: 150px auto 0 auto;
+	opacity: 1;
+
+	-webkit-transition: opacity 500ms ease-in 100ms;
+	-moz-transition: opacity 500ms ease-in 100ms;
+	-o-transition: opacity 500ms ease-in 100ms;
+	transition: opacity 500ms ease-in 100ms;
+}
+
+.content.load.fadeout {
+	opacity: 0;
+}
+
+.content.load .cog1 {
+	position: absolute;
+	top: 0px;
+	right: 125px;
+	font-size: 100px;
+}
+
+.content.load .cog2 {
+	position: absolute;
+	top: 65px;
+	right: 203px;
+	font-size: 60px;
+}
+
+.content.load .cog1 span {
+	-webkit-animation-name: spin;
+	-moz-animation-name: spin;
+	-ms-animation-name: spin;
+	animation-name: spin;
+
+	-webkit-animation-duration: 6000ms;
+	-moz-animation-duration: 6000ms;
+	-ms-animation-duration: 6000ms;
+	animation-duration: 6000ms;
+}
+
+.content.load .cog2 span {
+	-webkit-animation-name: spin-reverse;
+	-moz-animation-name: spin-reverse;
+	-ms-animation-name: spin-reverse;
+	animation-name: spin-reverse;
+
+	-webkit-animation-duration: 6000ms;
+	-moz-animation-duration: 6000ms;
+	-ms-animation-duration: 6000ms;
+	animation-duration: 6000ms;
+}
+
+.content.load .cog1 > span, .content.load .cog2 > span {
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-timing-function: linear;
+	-ms-animation-iteration-count: infinite;
+	-ms-animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+
+@-ms-keyframes spin {
+	from { -ms-transform: rotate(0deg); }
+	to { -ms-transform: rotate(360deg); }
+}
+@-moz-keyframes spin {
+	from { -moz-transform: rotate(0deg); }
+	to { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+	from { -webkit-transform: rotate(0deg); }
+	to { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+	from {transform:rotate(0deg);}
+	to {transform:rotate(360deg);}
+}
+
+@-ms-keyframes spin-reverse {
+	from { -ms-transform: rotate(360deg); }
+	to { -ms-transform: rotate(0deg); }
+}
+@-moz-keyframes spin-reverse {
+	from { -moz-transform: rotate(360deg); }
+	to { -moz-transform: rotate(0deg); }
+}
+@-webkit-keyframes spin-reverse {
+	from { -webkit-transform: rotate(360deg); }
+	to { -webkit-transform: rotate(0deg); }
+}
+@keyframes spin-reverse {
+	from {transform:rotate(360deg);}
+	to {transform:rotate(0deg);}
+}
+
+.content.load .file-progress {
+	position: absolute;
+	bottom: 0;
+	height: 7px;
+	width: 100%;
+	background: #EEE;
+}
+
+.content.load .file-progress .bar {
+	height: 7px;
+	background: rgba(0, 150, 0, 0.4);
+}
+
+
+.content.embedd {
+
+}	
+
+.content.embedd iframe {
+	width: 100%;
+	height: 100%;
+}
+
+.content.image {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.content.audio {
+	width: 100%;
+	height: 100%;
+}
+
+.content.audio .inner {
+	position: relative;
+	width: 512px;
+	padding-top: 50px;
+	height: 562px;
+	margin: auto;
+}
+
+.content.audio #audio {
+	position: absolute;
+	width: 100%;
+	bottom: 0;
+}
+
+.content.audio .albumart {
+	position: relative;
+	background-size: contain;
+	width: 512px;
+	height: 512px;
+}
+
+.content.audio img {
+	width: 100%;
+}
+
+.content.audio #fft {
+	position: absolute;
+	width: 500px;
+	bottom: 6px;
+	left: 6px;
+}
+
+.content.other {
+	text-align: center;
+}
+
+.content.other .icon {
+	width: 200px;
+	height: 160px;
+	margin: auto;
+	background: url(/img/download-200px.png);
+}
+
+.content.other .icon:hover {
+	background: url(/img/download-200px-hover.png);
+}
+
+.filelist {
+	/* compensate for ul margin */
+	margin-left: -10px;
+}
+
+.filelist ul {
+	margin-left: 10px;
+}
+
+.filelist ul li a {
+	display: block;
+	padding: 5px;
+	padding-left: 5px;
+	color: #555;
+	text-decoration: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.filelist ul li a:hover {
+	text-decoration: none;
+	background: #EEE;
+}
+
+.filelist ul li a:before {
+	font-family: "Glyphicons Halflings";
+	font-size: 9px;
+	opacity: 0;
+	display: inline-block;
+	width: 10px;
+	margin-right: 7px;
+
+	-webkit-transition: opacity 200ms ease-out;
+    -moz-transition: opacity 200ms ease-out;
+    -o-transition: opacity 200ms ease-out;
+    transition: opacity 200ms ease-out;
+}
+
+.filelist ul li a:hover:before {
+	opacity: 1;
+}
+
+.filelist ul li a.file:before {
+	content:"\e022";
+}
+
+.filelist ul li a.folder:before {
+	content: "\e080";
+	opacity: 0.3;
+}
+
+.filelist ul li a.folder.open:before {
+	content: "\e114";
+	opacity: 1;
+}
+
+.filelist ul li a.folder:hover:before {
+	opacity: 1;
+}
+
+@media (min-width: 768px) {
+	.main-container, .main-container.fullsize {
+		position: fixed;
+		top: 50px;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+
+	.flexbox-container {
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+	}
+
+	.flexbox-container > div + div {
+		border-left: 1px solid lightgray;
+	}
+
+	.filelist {
+		max-width: 300px;
+		padding: 10px;	
+	}
+
+	.content.load {
+		width: 400px;
+		margin: 150px auto 0 auto;
+	}
+
+	.content.embedd {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.content.other .icon {
+		width: 500px;
+		height: 400px;
+		margin: auto;
+		background: url(/img/download-500px.png);
+	}
+
+	.content.other .icon:hover {
+		background: url(/img/download-500px-hover.png);
+	}
+}
+
+@media (max-width: 512px) {
+	.content.audio .inner {
+		width: 100%;
+		height: 100%;
+	}
+
+	.content.audio .albumart {
+		position: absolute;
+		width: 100%;
+		height: auto;
+		top: 0;
+	}
+}
