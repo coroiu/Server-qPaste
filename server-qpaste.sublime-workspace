@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"handl",
+				"handleFile"
+			],
+			[
+				"for",
+				"for	for (…) {…}"
+			],
+			[
 				"nav",
 				"navbar-fixed-top"
 			],
@@ -236,34 +244,10 @@
 	"buffers":
 	[
 		{
-			"file": "models/upload.js",
+			"file": "database.js",
 			"settings":
 			{
-				"buffer_size": 2902,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "views/get.html",
-			"settings":
-			{
-				"buffer_size": 9931,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "app.js",
-			"settings":
-			{
-				"buffer_size": 9648,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "public/css/stylesheet.css",
-			"settings":
-			{
-				"buffer_size": 3956,
+				"buffer_size": 1358,
 				"line_ending": "Windows"
 			}
 		},
@@ -271,25 +255,85 @@
 			"file": "amazons3-connect.js",
 			"settings":
 			{
-				"buffer_size": 8023,
+				"buffer_size": 8084,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "views/content-text.html",
+			"contents": "var express = require('express');\nvar formidable = require('formidable');\nvar util = require('util');\nvar fs = require('fs');\nvar cons = require('consolidate');\nvar mime = require('mime');\nvar storage = require('./amazons3-connect');\nvar homepage = require('./homepage');\nvar app = express();\n\n//Databas\nvar database = require('./database');\nvar mongoose = database.mongoose();\nvar MongoStore = require('connect-mongo')(express);\n\n//Models\nvar Upload = require('./models/upload')(mongoose);\n\n//Deamon\nvar deamon = require('./deamon')(storage, Upload);\n\nvar globals = {\n	limit: 		process.env.limit || '40',\n	host: 		process.env.host || \"http://localhost:1337\",\n	port: 		process.env.PORT || 1337,\n	statistics: {\n		uploads: 0\n	}\n};\n\nvar callbacks = {};\nvar s3path = \"http://s3.amazonaws.com/qpaste/uploads/\";\nvar s3resourcepath = \"/uploads/\";\n\n\n/*jslint es5: true */\napp.use(express.static(__dirname + '/public'));\napp.engine('html', cons.hogan);\napp.set('view engine', 'html');\napp.set('views', __dirname + '/views');\napp.use(express.cookieParser());\nconsole.log(database.uri());\napp.use(express.session({\n	//store: new MongoStore(database.config()),\n	store: new MongoStore({\n		url: database.uri()\n	}),\n	secret: 'imissmycat',\n	cookie: {  path: '/', maxAge: 2629743830 } //1 month\n}));\napp.use(app.router);\n\nstorage.setLimit(parseInt(globals.limit, 10));\n\n//Hook homepage into express\n//homepage.passport(passport);\nhomepage.hook(globals, app);\n\n//Main preview page\napp.get('/get/:uid', function(req, res) {\n	Upload.getUpload(req.params.uid, function (err, upload) {\n		if (err) {\n			if (err.status == 500)\n				return next(err);\n			else {\n				res.statusCode = 404;\n				res.render('get-error', {\n					title: 'Not found'\n				});\n			}\n		} else {\n			renderContent(req, res, upload);\n		}\n	});\n});\n\n//Short Handle creator\napp.get('/s/:sid', function(req, res) {\n	Upload.getUploadShort(req.params.sid, function (err, upload) {\n		if (err) {\n			if (err.status == 500)\n				return next(err);\n			else {\n				res.statusCode = 404;\n				res.render('get-error', {\n					title: 'Not found'\n				});\n			}\n		} else {\n			renderContent(req, res, upload);\n		}\n	});\n});\n\n//Delete file\napp.get('/delete/:sid', function(req, res) {\n	Upload.getUpload(req.params.sid, function (err, upload) {\n		if (err) {\n			if (err.status == 500)\n				return next(err);\n			else {\n				res.statusCode = 404;\n				res.end(\"Couldn't find file.\");\n			}\n		} else {\n			storage.deleteFile(req.params.sid, function(statusCode) {\n				//res.end(response);\n			});\n			upload.remove();\n			res.end();\n		}\n	});\n});\n\n//Returns when upload is ready\napp.get('/ready/:uid', function (req, res) {\n	Upload.findOne({ uid: req.params.uid }, function (err, upload) {\n		var error;\n		if (err) {\n			error = new Error('Couldn\\'t search for token in database.');\n			error.name = \"Database error\";\n			error.status = 500;\n			error.originalError = err;\n			return next(error);\n		} else if (!upload.uploaded) {\n			req.connection.setTimeout(3600000); //1 Hour timeout\n			req.socket.setTimeout(3600000);\n			if (callbacks[upload.uid]) {\n				callbacks[upload.uid].push(function () {\n					res.writeHead(204, {});\n					res.end();\n				});\n			}\n		} else {\n			res.writeHead(204, {});\n			res.end();\n		}\n	});\n});\n\n//Ajax content provider\napp.get('/content/:uid', function (req, res) {\n	Upload.findOne({ uid: req.params.uid }, function (err, upload) {\n		var error;\n		if (err) {\n			error = new Error('Couldn\\'t search for token in database.');\n			error.name = \"Database error\";\n			error.status = 500;\n			error.originalError = err;\n			return next(error);\n		} else if (!upload.uploaded) {\n			req.connection.setTimeout(3600000); //1 Hour timeout\n			req.socket.setTimeout(3600000);\n			if (callbacks[upload.uid]) {\n				callbacks[upload.uid].push(function () {\n					ajaxContent(req, res, upload);\n				});\n			}\n		} else {\n			ajaxContent(req, res, upload);\n		}\n	});\n});\n\nfunction renderContent(req, res, upload) {\n	res.render('getnew', {\n		title: 'Get paste',\n		uid: upload.uid,\n		timeleft: timeleft(timediff(upload.expire)),\n		timestamp: timediff(upload.expire),\n		page: globals.host + \"/get/\" + upload.uid,\n		link: storage.getSignedS3Url( upload.resourcepath, 'inline;', Math.round((upload.expire.getTime() + 3600000)/1000) ),\n		permalink: upload.url,\n		available: upload.uploaded,\n		filetype: filetype(upload.mimetype),\n		owner: (req.sessionID == upload.owner)\n	});\n}\n\nfunction ajaxContent (req, res, upload) {\n	switch (filetype(upload.mimetype)) {\n		case 'image':\n			res.render('content-image', {\n				link: upload.url\n			});\n			break;\n		case 'embedd':\n			res.render('content-embedd', {\n				link: storage.getSignedS3Url( upload.resourcepath, 'inline;', Math.round((upload.expire.getTime() + 3600000)/1000) ),\n				mime: upload.mimetype\n			});\n			break;\n		case 'text':\n			res.render('content-text', {\n				link: upload.url,\n				runnable: false\n			});\n			break;\n		case 'audio':\n			res.render('content-audio', {\n				link: upload.url,\n				mime: upload.mimetype\n			});\n			break;\n		case 'runnable':\n			res.render('content-text', {\n				link: upload.url,\n				runnable: true\n			});\n			break;\n		default:\n			res.render('content-dl', {\n				link: upload.url,\n				content: upload.url\n			});\n	}\n}\n\n// API\napp.post('/upload-token', function (req, res, next) {\n	var form = new formidable.IncomingForm();\n\n	form.parse(req, function (err, fields, files) {\n		if (!fields.filename || !fields.mime) {\n			var error = new Error('Fields missing.');\n			error.name = \"Fields missing\";\n			error.status = 400;\n			return next(error);\n		}\n		var upload = new Upload({\n			filename: fields.filename,\n			mimetype: (fields.mime == 'application/octet-stream' ? mime.lookup(fields.filename) : fields.mime),\n			owner: req.sessionID\n		});\n		upload.save(function (err, upload) {\n			if (err) {\n				var error = new Error('Couldn\\'t create token in database.');\n				error.name = \"Database error\";\n				error.status = 500;\n				return next(error);\n			}\n\n			callbacks[upload.uid] = [];\n			deamon.watch(upload);\n			res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });\n			res.end(JSON.stringify({\n				token: upload.uid,\n				link: globals.host + \"/get/\" + upload.uid,\n				storage: storage.getS3Policy(\"uploads/\" + upload.uid, fields.filename, fields.mime)\n			}));\n		});\n	});\n});\n\napp.post('/upload-done', function (req, res, next) {\n	var form = new formidable.IncomingForm();\n\n	form.parse(req, function(err, fields, files) {\n		if (!fields.token) {\n			var error = new Error('Token missing.');\n			error.name = \"Token missing\";\n			error.status = 400;\n			return next(error);\n		}\n\n		Upload.getUpload(fields.token, function (err, upload) {\n			if(err) { return next(err); }\n\n			upload.resourcepath = s3resourcepath + fields.token;\n			upload.uploaded = true;\n			upload.save(function (err, upload) {\n				if (err) {\n					var error = new Error('Couldn\\'t edit token in database.');\n					error.name = \"Database error\";\n					error.status = 500;\n					return next(error);\n				}\n\n				res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });\n				res.end('');\n\n				if (callbacks[upload.uid]) {\n					for (i = 0; i < callbacks[upload.uid].length; i++) {\n						callbacks[upload.uid][i]();\n					}\n				}\n			});\n		});\n		globals.statistics.uploads++;\n	});\n});\n\napp.post('/create-short', function (req, res, next) {\n	var form = new formidable.IncomingForm();\n\n	form.parse(req, function(err, fields, files) {\n		if (!fields.token || !fields.sid) {\n			var error = new Error('Fields missing.');\n			error.name = \"Fields missing\";\n			error.status = 400;\n			return next(error);\n		}\n\n		Upload.existsShort(fields.sid, function(_err, exists) {\n			if(_err) { return next(_err); }\n			if (exists) {\n				var error = new Error('Link already exists');\n				error.name = \"Link already exists\";\n				error.status = 409;\n				return next(error);\n			}\n\n			Upload.getUpload(fields.token, function (__err, upload) {\n				if(__err) { return next(__err); }\n				upload.sid.push(fields.sid);\n\n				upload.save(function (___err, upload) {\n					if (___err) {\n						var error = new Error('Couldn\\'t edit token in database.');\n						error.name = \"Database error\";\n						error.status = 500;\n						return next(error);\n					}\n\n					res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });\n					res.end(JSON.stringify({\n						link: globals.host + \"/s/\" + fields.sid\n					}));\n				});\n			});\n		});\n	});\n});\n\n// ERROR HANDLING\napp.use(function(err, req, res, next) {\n	switch (err.status) {\n		case 400:\n		case 401:\n		case 404:\n		case 409:\n			res.writeHead(err.status, {'Content-type': 'text/plain'});\n			res.end(err.name);\n			break;\n		case 413:\n			res.writeHead(err.status, {'Content-type': 'text/plain'});\n			res.end('File too large. Max filesize is: ' + globals.limit);\n			break;\n		default:\n			res.writeHead(500, {'Content-type': 'text/plain'});\n			res.write('Unknown error occurred: \\n\\n');\n			res.end(util.inspect(err));\n	}\n});\n\nfunction DeleteFile(token) {\n	//Amazon S3 delete not implemented\n	//Files delete themselves after 1 day\n\n    /*try {\n        fs.unlink(tokens[token].filename);\n    } catch (ex) {\n\n    }*/\n\n    tokens[token] = {};\n}\n\nfunction isAvailable(token) {\n	try {\n		if (tokens[token].filepath !== '') {\n			return true;\n		}\n		else\n			return false;\n	} catch (ex) {\n		return false;\n	}\n}\n\nfunction timediff(time) {\n	now = new Date().getTime();\n	kickoff = time.getTime();\n	return kickoff - now;\n}\n\nfunction timeleft(diff) {\n	days  = Math.floor( diff / (1000*60*60*24) );\n	hours = Math.floor( diff / (1000*60*60) );\n	mins  = Math.floor( diff / (1000*60) );\n	secs  = Math.floor( diff / 1000 );\n\n	dd = days;\n	hh = hours - days  * 24;\n	mm = mins  - hours * 60;\n	ss = secs  - mins  * 60;\n\n	return hh + \"h \" + mm + \"m \" + ss + \"s\";\n}\n\nfunction filetype(mimetype) {\n	switch (mimetype) {\n		case 'image/bmp':\n		case 'image/x-windows-bmp':\n		case 'image/gif':\n		case 'image/jpeg':\n		case 'image/png':\n			return 'image';\n		case 'application/x-shockwave-flash':\n		case 'application/pdf':\n			return 'embedd';\n		case 'application/x-javascript':\n		case 'application/javascript':\n		case 'application/ecmascript':\n		case 'text/javascript':\n		case 'text/ecmascript':\n		case 'text/css':\n		case 'text/x-asm':\n		case 'text/asp':\n		case 'text/x-c':\n		case 'text/x-fortran':\n		case 'text/x-h':\n		case 'text/x-script':\n		case 'text/webviewhtml':\n		case 'text/x-pascal':\n		case 'text/pascal':\n		case 'text/x-script.perl':\n		case 'text/x-script.perl-module':\n		case 'text/x-script.phyton':\n		case 'text/x-java-source':\n		case 'text/x-csharp':\n		case 'text/plain':\n			return 'text';\n		case 'text/html':\n			return 'runnable';\n		case 'audio/mp3':\n		case 'audio/mpeg':\n		case 'audio/ogg':\n		case 'audio/wav':\n			return 'audio';\n		case 'application/zip':\n			return 'zip';\n		default:\n			return 'other';\n	}\n}\napp.listen(globals.port);",
+			"file": "app.js",
+			"file_size": 11240,
+			"file_write_time": 130592260942531687,
 			"settings":
 			{
-				"buffer_size": 601,
+				"buffer_size": 10793,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "views/getnew.html",
+			"settings":
+			{
+				"buffer_size": 20811,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "wrcompiler-config.json",
+			"settings":
+			{
+				"buffer_size": 1458,
+				"line_ending": "Windows",
+				"name": "{"
 			}
 		}
 	],
 	"build_system": "Packages/C++/C++.sublime-build",
 	"command_palette":
 	{
-		"height": 58.0,
+		"height": 98.0,
 		"selected_items":
 		[
+			[
+				"renam",
+				"File: Rename"
+			],
+			[
+				"close",
+				"Project: Close"
+			],
+			[
+				"reinde",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"rename",
+				"File: Rename"
+			],
+			[
+				"disable",
+				"Package Control: Disable Package"
+			],
+			[
+				"duplicate",
+				"File: Duplicate"
+			],
+			[
+				"toggle me",
+				"View: Toggle Menu"
+			],
+			[
+				"toggle",
+				"Toggle Comment"
+			],
+			[
+				"close ",
+				"Project: Close"
+			],
+			[
+				"rein",
+				"Indentation: Reindent Lines"
+			],
 			[
 				"install",
 				"Package Control: Install Package"
@@ -311,11 +355,15 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 536.0
+		"width": 368.0
 	},
 	"console":
 	{
-		"height": 146.0
+		"height": 146.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
 	},
 	"distraction_free":
 	{
@@ -326,20 +374,58 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/partials"
+	],
 	"file_history":
 	[
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/wrcompiler/wrcompiler.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/get.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/src/jquery-2.1.1.min.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/home.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/home.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/src/qpaste-home.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/about.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/api.html",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/get.html",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/.gitignore",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/package.json",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/express/package.json",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/express/bin/express",
+		"/C/Users/Andreas/Documents/GitHub/resource-compiler/node_modules/minify/bin/minify.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/models/upload.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/express/node_modules/connect/node_modules/compression/node_modules/compressible/compressible.sublime-project",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/express/node_modules/connect/node_modules/multiparty/node_modules/readable-stream/lib/_stream_passthrough.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/minify/node_modules/clean-css/lib/colors/long-to-short-hex.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/minify/ChangeLog",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/minify/README.md",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/.bin/nodemon.cmd",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/compiler.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/mongoose/node_modules/mpromise/test/promises.Aplus.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/Procfile",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/mongojs/node_modules/readable-stream/duplex.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/deamon.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/.nodemonignore",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/node_modules/.bin/nodemon",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/css/stylesheet.css",
+		"/C/cygwin/home/Andreas/.ssh/id_rsa.pub",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/s3credentialsHeroku.js",
+		"/C/Users/Andreas/Documents/GitHub/WaveWire-Server/WaveWire-Server/MainForm.cs",
+		"/C/Users/Andreas/Documents/GitHub/WaveWire-Server/WaveWire-Server/Network/WebClientHandler.cs",
+		"/C/Users/Andreas/Documents/GitHub/WaveWire-Server/WaveWire-Server/Network/Server.cs",
+		"/C/Users/Andreas/Documents/GitHub/WaveWire-Server/WaveWire-Server/Network/WebServer.cs",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/homepage.js",
+		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/content-text.html",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/partials/jsimports.html",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/app.js",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/content-image.html",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/models/upload.js",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/css/stylesheet.css",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/api.html",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/content-embedd.html",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/homepage.js",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/css/home-stylesheet.css",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/jquery.fileupload.js",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/home.html",
 		"/C/Users/Andreas/Dropbox/andreascoroiu.com/dev.andreascoroiu.com/css/fonts-offline.css",
 		"/C/Users/Andreas/Dropbox/andreascoroiu.com/dev.andreascoroiu.com/css/bootstrap.min.css",
 		"/C/Users/Andreas/Dropbox/andreascoroiu.com/dev.andreascoroiu.com/index.html",
@@ -355,15 +441,12 @@
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/smoothzoom.min.js",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/amazons3-connect.js",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/s3credentials.js.template",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/about.html",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/app_expressbak.js",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/database_old.js",
 		"/C/Program Files (x86)/The Cave/Data/Config/User.cfg",
 		"/C/Program Files (x86)/The Cave/Data/Config/user.lua",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/footer.html",
 		"/C/Backup/Descent 2X/config/d2x-default.ini",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/views/content-text.html",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/package.json",
 		"/C/Users/Andreas/Downloads/Inlämning2.java",
 		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/README.md",
 		"/C/Users/Andreas/Documents/empty.html",
@@ -397,7 +480,6 @@
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/s3credentials.js",
 		"/C/Users/Andreas/Documents/GitHub/dancer.js/examples/waveform/index.html",
 		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/.gitignore",
-		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/.gitignore",
 		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/Windows-qPaste/bin/Release/app.publish/publish.htm",
 		"/C/Users/Andreas/Documents/GitHub/Windows-qPaste/Windows-qPaste/bin/Release/app.publish/index.htm",
 		"/C/Users/Andreas/Documents/GitHub/Server-qPaste/public/js/cookie.js",
@@ -428,13 +510,11 @@
 		"/C/temp/Getting Started - Educational Materials — Google Developers.htm",
 		"/C/temp/Windows-qPaste/Form1.cs",
 		"/C/Users/Andreas/Documents/hej.txt",
-		"/C/Users/Andreas/Documents/GitHub/Pushto-Server/app.js",
-		"/C/Users/Andreas/Documents/GitHub/Pushto-Server/auth_bak.html",
-		"/C/Users/Andreas/Downloads/client_secrets.json"
+		"/C/Users/Andreas/Documents/GitHub/Pushto-Server/app.js"
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 55.0
 	},
 	"find_in_files":
 	{
@@ -448,6 +528,20 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"jQuery v2.1.1",
+			"jquery",
+			"css",
+			"ss",
+			"defferd",
+			"js",
+			"upload",
+			"watch",
+			"event.cancel",
+			"\" ",
+			"callbacks",
+			"token",
+			"tokens",
+			"hostname",
 			"user",
 			"createShortModal",
 			"Coresponds",
@@ -488,23 +582,24 @@
 	"groups":
 	[
 		{
-			"selected": 5,
+			"selected": 4,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "models/upload.js",
+					"file": "database.js",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2902,
+						"buffer_size": 1358,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1083,
-								1083
+								110,
+								110
 							]
 						],
 						"settings":
@@ -604,22 +699,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "views/get.html",
+					"file": "amazons3-connect.js",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9931,
+						"buffer_size": 8084,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5295,
-								5295
+								918,
+								918
 							]
 						],
 						"settings":
@@ -671,7 +768,6 @@
 							"gjslint_options":
 							[
 							],
-							"is_xml": false,
 							"javascript_linter": "jshint",
 							"jshint_options":
 							{
@@ -713,29 +809,31 @@
 								"Ruby on Rails": "ruby"
 							},
 							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 2261.0,
+						"translation.x": 10.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
 					"file": "app.js",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9648,
+						"buffer_size": 10793,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3384,
-								3384
+								975,
+								975
 							]
 						],
 						"settings":
@@ -832,356 +930,68 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 2514.0,
+						"translation.y": 141.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "public/css/stylesheet.css",
+					"file": "views/getnew.html",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3956,
+						"buffer_size": 20811,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2210,
-								2210
+								5965,
+								5906
 							]
 						],
 						"settings":
 						{
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/CSS/CSS.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2214.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "amazons3-connect.js",
-					"settings":
-					{
-						"buffer_size": 8023,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								916,
-								916
-							]
-						],
-						"settings":
-						{
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "views/content-text.html",
-					"settings":
-					{
-						"buffer_size": 601,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								332,
-								332
-							]
-						],
-						"settings":
-						{
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"is_xml": false,
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
 							"syntax": "Packages/HTML/HTML.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
+						"translation.y": 2144.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "wrcompiler-config.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1458,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								475,
+								475
+							]
+						],
+						"settings":
+						{
+							"auto_name": "{",
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": -0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -1217,11 +1027,16 @@
 			1.0
 		]
 	},
-	"menu_visible": true,
+	"menu_visible": false,
 	"output.exec":
 	{
 		"height": 134.0
 	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"project": "server-qpaste.sublime-project",
 	"replace":
 	{
 		"height": 62.0
@@ -1232,10 +1047,30 @@
 		"height": 0.0,
 		"selected_items":
 		[
+			[
+				"package",
+				"package.json"
+			],
+			[
+				"nodemoni",
+				".nodemonignore"
+			]
 		],
 		"width": 0.0
 	},
 	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"",
+				"C:\\Users\\Andreas\\Documents\\GitHub\\resource-compiler\\resource-compiler.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
 	{
 		"height": 0.0,
 		"selected_items":
@@ -1243,10 +1078,17 @@
 		],
 		"width": 0.0
 	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 213.0,
-	"status_bar_visible": true
+	"side_bar_width": 253.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
 }

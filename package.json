@@ -12,6 +12,7 @@
         "mongojs": "",
         "connect-mongo": "",
         "mongoose": "",
-        "hogan.js": ""
+        "hogan.js": "",
+        "wrcompiler": ""
     }
 }

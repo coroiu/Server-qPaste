@@ -17,3 +17,6 @@ npm-debug.log
 
 db/
 node_modules/
+
+public/css/bin
+public/js/bin

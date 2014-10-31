@@ -8,7 +8,7 @@ var storage = require('./amazons3-connect');
 var homepage = require('./homepage');
 var app = express();
 
-//Database
+//Databas
 var database = require('./database');
 var mongoose = database.mongoose();
 var MongoStore = require('connect-mongo')(express);
@@ -20,9 +20,9 @@ var Upload = require('./models/upload')(mongoose);
 var deamon = require('./deamon')(storage, Upload);
 
 var globals = {
-	limit: process.env.limit || '40',
-	host: process.env.host || "http://localhost:1337",
-	port: process.env.PORT || 1337,
+	limit: 		process.env.limit || '40',
+	host: 		process.env.host || "http://localhost:1337",
+	port: 		process.env.PORT || 1337,
 	statistics: {
 		uploads: 0
 	}
@@ -31,6 +31,7 @@ var globals = {
 var callbacks = {};
 var s3path = "http://s3.amazonaws.com/qpaste/uploads/";
 var s3resourcepath = "/uploads/";
+
 
 /*jslint es5: true */
 app.use(express.static(__dirname + '/public'));
@@ -312,7 +313,7 @@ app.post('/create-short', function (req, res, next) {
 			Upload.getUpload(fields.token, function (__err, upload) {
 				if(__err) { return next(__err); }
 				upload.sid.push(fields.sid);
-				
+
 				upload.save(function (___err, upload) {
 					if (___err) {
 						var error = new Error('Couldn\'t edit token in database.');

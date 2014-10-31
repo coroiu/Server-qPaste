@@ -1,0 +1,66 @@
+{
+	"./public/css/home.css": [
+		{
+			"name": "./public/css/src/bootstrap.min.css",
+			"options": ["concatonly"]
+		},
+		"./public/css/src/home-stylesheet.css"
+	],
+	"./public/css/get.css": [
+		{
+			"name": "./public/css/src/bootstrap.min.css",
+			"options": ["concatonly"]
+		},
+		"./public/css/src/bootstrap-switch.min.css",
+		"./public/css/src/get-stylesheet.css"
+	],
+	"./public/js/home.js": [
+		{
+			"name": "./public/js/src/jquery-2.1.1.min.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/bootstrap.min.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/knockout-2.2.1.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/jquery.zclip.min.js",
+			"options": ["concatonly"]
+		},
+		"./public/js/src/zip/zip.js",
+		"./public/js/src/qpaste-home.js"
+	],
+	"./public/js/get.js": [
+		{
+			"name": "./public/js/src/jquery-2.1.1.min.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/bootstrap.min.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/knockout-2.2.1.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/extend.min.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/smoothzoom.min.js",
+			"options": ["concatonly"]
+		},
+		{
+			"name": "./public/js/src/highlight.min.js",
+			"options": ["concatonly"]
+		},
+		"./public/js/src/zip/zip.js",
+		"./public/js/src/zip/zip-ext.js",
+		"./public/js/src/zip/mime-types.js"
+	]
+}
